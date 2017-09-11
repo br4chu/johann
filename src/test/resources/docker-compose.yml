@@ -1,0 +1,20 @@
+version: '2.1'
+
+services:
+  postgresql:
+    image: postgres:9.6-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: test
+    healthcheck:
+      test: pg_isready -q -h localhost
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  rabbitmq:
+    image: rabbitmq:3.6.10-management-alpine
+    ports:
+      - "5672"
+      - "${EXTERNAL_MANAGEMENT_PORT}:15672"
