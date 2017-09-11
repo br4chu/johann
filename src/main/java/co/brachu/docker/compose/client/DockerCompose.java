@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import co.brachu.docker.compose.client.cli.DockerComposeCli;
+
 public interface DockerCompose {
 
     static Builder cli() {

@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client;
+package co.brachu.docker.compose.client.cli;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import co.brachu.docker.compose.client.ContainerId;
+import co.brachu.docker.compose.client.DockerComposeExecutor;
+import co.brachu.docker.compose.client.PortBinding;
+import co.brachu.docker.compose.client.Protocol;
 import co.brachu.docker.compose.client.exception.DockerComposeException;
 import co.brachu.docker.compose.client.exception.ExecutionTimedOutException;
 import co.brachu.docker.compose.client.exception.NonZeroExitCodeException;

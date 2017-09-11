@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client;
+package co.brachu.docker.compose.client.cli;
 
 import java.net.URL;
 import java.util.LinkedHashMap;
@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import co.brachu.docker.compose.client.ContainerId;
+import co.brachu.docker.compose.client.ContainerPort;
+import co.brachu.docker.compose.client.DockerCompose;
+import co.brachu.docker.compose.client.PortBinding;
+import co.brachu.docker.compose.client.Protocol;
 import co.brachu.docker.compose.client.exception.DockerClientException;
 import co.brachu.docker.compose.client.exception.DockerComposeFileNotFoundException;
 import com.spotify.docker.client.DefaultDockerClient;

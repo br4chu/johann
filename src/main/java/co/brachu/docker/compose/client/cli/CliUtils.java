@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client;
+package co.brachu.docker.compose.client.cli;
 
 import java.io.BufferedReader;
 import java.io.IOException;
