@@ -22,9 +22,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <awaitility.version>3.0.0</awaitility.version>
+        <commons-io.version>2.5</commons-io.version>
         <commons-lang3.version>3.6</commons-lang3.version>
         <commons-text.version>1.1</commons-text.version>
-        <commons-io.version>2.5</commons-io.version>
         <docker-client.version>8.9.0</docker-client.version>
         <groovy.version>2.4.12</groovy.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -57,6 +57,12 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
@@ -66,12 +72,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>${commons-text.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
         </dependency>
 
         <dependency>
