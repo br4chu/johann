@@ -1,5 +1,6 @@
 package co.brachu.johann.cli;
 
+import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,8 +12,8 @@ import co.brachu.johann.ContainerPort;
 import co.brachu.johann.DockerCompose;
 import co.brachu.johann.PortBinding;
 import co.brachu.johann.Protocol;
+import co.brachu.johann.exception.ComposeFileNotFoundException;
 import co.brachu.johann.exception.DockerClientException;
-import co.brachu.johann.exception.DockerComposeFileNotFoundException;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -33,7 +34,7 @@ public class DockerComposeCli implements DockerCompose {
     private DockerClient dockerClient;
     private boolean up;
 
-    private DockerComposeCli(String executablePath, String file, Map<String, String> env) {
+    private DockerComposeCli(String executablePath, File file, Map<String, String> env) {
         String projectName = new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
     }
@@ -122,7 +123,7 @@ public class DockerComposeCli implements DockerCompose {
     public static class Builder implements DockerCompose.Builder {
 
         private final String executablePath;
-        private String file;
+        private java.io.File file;
         private Map<String, String> env;
 
         public Builder(String executablePath) {
@@ -135,21 +136,31 @@ public class DockerComposeCli implements DockerCompose {
             return new Builder.File();
         }
 
+        private void assertFileExistence(java.io.File file) {
+            if (!file.exists()) {
+                throw new ComposeFileNotFoundException("File " + file.getAbsolutePath() + " does not exist.");
+            }
+        }
+
         private class File implements DockerCompose.OngoingBuild.File {
 
             @Override
-            public OngoingBuild.Env classpath(String file) {
-                URL url = ClassLoader.getSystemResource(file);
+            public OngoingBuild.Env classpath(String filePath) {
+                URL url = ClassLoader.getSystemResource(filePath);
                 if (url != null) {
-                    Builder.this.file = url.getPath();
+                    java.io.File file = new java.io.File(url.getPath());
+                    assertFileExistence(file);
+                    Builder.this.file = file;
                     return new Env();
                 } else {
-                    throw new DockerComposeFileNotFoundException("Path " + file + " not found in the classpath.");
+                    throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
                 }
             }
 
             @Override
-            public OngoingBuild.Env absolute(String file) {
+            public OngoingBuild.Env absolute(String filePath) {
+                java.io.File file = new java.io.File(filePath);
+                assertFileExistence(file);
                 Builder.this.file = file;
                 return new Env();
             }

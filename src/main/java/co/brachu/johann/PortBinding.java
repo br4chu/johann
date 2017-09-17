@@ -6,7 +6,7 @@ public class PortBinding {
 
     public PortBinding(String binding) {
         String[] split = binding.split(":", 2);
-        port = split[1];
+        port = split[1].trim();
     }
 
     public String getPort() {

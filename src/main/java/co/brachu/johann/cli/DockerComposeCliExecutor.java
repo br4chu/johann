@@ -1,6 +1,10 @@
 package co.brachu.johann.cli;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +15,10 @@ import co.brachu.johann.ContainerId;
 import co.brachu.johann.DockerComposeExecutor;
 import co.brachu.johann.PortBinding;
 import co.brachu.johann.Protocol;
+import co.brachu.johann.cli.exception.ExecutionTimedOutException;
+import co.brachu.johann.cli.exception.NonZeroExitCodeException;
 import co.brachu.johann.exception.DockerComposeException;
-import co.brachu.johann.exception.ExecutionTimedOutException;
-import co.brachu.johann.exception.NonZeroExitCodeException;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +32,8 @@ class DockerComposeCliExecutor implements DockerComposeExecutor {
     private static final String[] PORT_COMMAND = { "port" };
     private static final String[] PS_COMMAND = { "ps", "-q" };
 
+    private final String composeFileContent;
+
     private final String[] upCmd;
     private final String[] downCmd;
     private final String[] killCmd;
@@ -35,8 +42,10 @@ class DockerComposeCliExecutor implements DockerComposeExecutor {
 
     private final String[] env;
 
-    DockerComposeCliExecutor(String executablePath, String file, String projectName, Map<String, String> env) {
-        String[] cmdPrefix = new String[] { executablePath, "-f", file, "-p", projectName };
+    DockerComposeCliExecutor(String executablePath, File composeFile, String projectName, Map<String, String> env) {
+        String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
+
+        composeFileContent = readComposeFile(composeFile);
 
         upCmd = concat(cmdPrefix, UP_COMMAND);
         downCmd = concat(cmdPrefix, DOWN_COMMAND);
@@ -84,7 +93,7 @@ class DockerComposeCliExecutor implements DockerComposeExecutor {
         String cmdJoined = Arrays.stream(cmd).collect(Collectors.joining(" "));
 
         try {
-            return CliUtils.exec(cmd, env);
+            return CliRunner.exec(cmd, env, this::pipeComposeFile);
         } catch (IOException e) {
             throw new DockerComposeException("Unexpected I/O exception while executing '" + cmdJoined + "'.", e);
         } catch (InterruptedException e) {
@@ -94,6 +103,25 @@ class DockerComposeCliExecutor implements DockerComposeExecutor {
             throw new DockerComposeException(msg);
         } catch (ExecutionTimedOutException e) {
             throw new DockerComposeException("Timed out while waiting for '" + cmdJoined + "' to finish executing.");
+        }
+    }
+
+    private String readComposeFile(File composeFile) {
+        try {
+            return IOUtils.toString(new FileInputStream(composeFile), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new DockerComposeException("Unexpected exception while reading compose file contents.", e);
+        }
+    }
+
+    private void pipeComposeFile(Process process) {
+        OutputStream output = process.getOutputStream();
+        try {
+            IOUtils.write(composeFileContent, output, StandardCharsets.UTF_8);
+            output.flush();
+            output.close();
+        } catch (IOException e) {
+            throw new DockerComposeException("Unexpected exception while piping compose file contents to docker-compose CLI.", e);
         }
     }
 

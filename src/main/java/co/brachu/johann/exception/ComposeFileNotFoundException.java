@@ -1,10 +1,10 @@
 package co.brachu.johann.exception;
 
-public class DockerComposeFileNotFoundException extends RuntimeException {
+public class ComposeFileNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 4159645566092345161L;
 
-    public DockerComposeFileNotFoundException(String message) {
+    public ComposeFileNotFoundException(String message) {
         super(message);
     }
 

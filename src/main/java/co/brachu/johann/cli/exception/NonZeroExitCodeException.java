@@ -1,4 +1,4 @@
-package co.brachu.johann.exception;
+package co.brachu.johann.cli.exception;
 
 public class NonZeroExitCodeException extends Exception {
 

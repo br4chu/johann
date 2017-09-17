@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit
 import co.brachu.johann.exception.DockerComposeException
 import spock.lang.Specification
 
-class DockerComposeClientSpec extends Specification {
+class JohannAcceptanceSpec extends Specification {
 
-    def dockerCompose = DockerCompose.cli()
+    def dockerCompose = DockerCompose.builder()
             .file().classpath()
             .env('EXTERNAL_MANAGEMENT_PORT', '1337')
             .build()
@@ -73,7 +73,7 @@ class DockerComposeClientSpec extends Specification {
 
     def "should show error from docker-compose cli"() {
         given:
-        dockerCompose = DockerCompose.cli()
+        dockerCompose = DockerCompose.builder()
                 .file().classpath()
                 .build()
 

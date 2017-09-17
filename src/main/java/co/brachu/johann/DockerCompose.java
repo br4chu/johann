@@ -8,11 +8,11 @@ import co.brachu.johann.cli.DockerComposeCli;
 
 public interface DockerCompose {
 
-    static Builder cli() {
-        return cli("docker-compose");
+    static Builder builder() {
+        return builder("docker-compose");
     }
 
-    static Builder cli(String executablePath) {
+    static Builder builder(String executablePath) {
         return new DockerComposeCli.Builder(executablePath);
     }
 
@@ -46,9 +46,9 @@ public interface DockerCompose {
                 return classpath("docker-compose.yml");
             }
 
-            OngoingBuild.Env classpath(String file);
+            OngoingBuild.Env classpath(String filePath);
 
-            OngoingBuild.Env absolute(String file);
+            OngoingBuild.Env absolute(String filePath);
 
         }
 

@@ -1,23 +1,25 @@
 package co.brachu.johann.cli;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
-import co.brachu.johann.exception.ExecutionTimedOutException;
-import co.brachu.johann.exception.NonZeroExitCodeException;
+import co.brachu.johann.cli.exception.ExecutionTimedOutException;
+import co.brachu.johann.cli.exception.NonZeroExitCodeException;
+import org.apache.commons.io.IOUtils;
 
-final class CliUtils {
+final class CliRunner {
 
-    private CliUtils() {
+    private CliRunner() {
     }
 
-    static String exec(String[] cmd, String[] env) throws IOException, InterruptedException, NonZeroExitCodeException, ExecutionTimedOutException {
+    static String exec(String[] cmd, String[] env, Consumer<Process> onProcessStart) throws IOException, InterruptedException, NonZeroExitCodeException,
+            ExecutionTimedOutException {
+
         Process process = Runtime.getRuntime().exec(cmd, env.length > 0 ? env : null);
+        onProcessStart.accept(process);
         if (process.waitFor(1, TimeUnit.MINUTES)) {
             int exitCode = process.exitValue();
             if (exitCode == 0) {
@@ -32,8 +34,8 @@ final class CliUtils {
         }
     }
 
-    private static String readInput(InputStream input) {
-        return new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8)).lines().collect(Collectors.joining(System.lineSeparator()));
+    private static String readInput(InputStream input) throws IOException {
+        return IOUtils.toString(input, StandardCharsets.UTF_8);
     }
 
 }
