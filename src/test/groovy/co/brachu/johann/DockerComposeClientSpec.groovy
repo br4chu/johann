@@ -1,8 +1,8 @@
-package co.brachu.docker.compose.client
+package co.brachu.johann
 
 import java.util.concurrent.TimeUnit
 
-import co.brachu.docker.compose.client.exception.DockerComposeException
+import co.brachu.johann.exception.DockerComposeException
 import spock.lang.Specification
 
 class DockerComposeClientSpec extends Specification {
@@ -15,7 +15,7 @@ class DockerComposeClientSpec extends Specification {
     def "should run without errors"() {
         when:
         dockerCompose.up()
-        dockerCompose.waitForCluster(1, TimeUnit.MINUTES);
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
         dockerCompose.down()
 
         then:

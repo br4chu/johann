@@ -1,10 +1,10 @@
-package co.brachu.docker.compose.client;
+package co.brachu.johann;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import co.brachu.docker.compose.client.cli.DockerComposeCli;
+import co.brachu.johann.cli.DockerComposeCli;
 
 public interface DockerCompose {
 

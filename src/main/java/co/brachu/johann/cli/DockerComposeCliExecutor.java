@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client.cli;
+package co.brachu.johann.cli;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import co.brachu.docker.compose.client.ContainerId;
-import co.brachu.docker.compose.client.DockerComposeExecutor;
-import co.brachu.docker.compose.client.PortBinding;
-import co.brachu.docker.compose.client.Protocol;
-import co.brachu.docker.compose.client.exception.DockerComposeException;
-import co.brachu.docker.compose.client.exception.ExecutionTimedOutException;
-import co.brachu.docker.compose.client.exception.NonZeroExitCodeException;
+import co.brachu.johann.ContainerId;
+import co.brachu.johann.DockerComposeExecutor;
+import co.brachu.johann.PortBinding;
+import co.brachu.johann.Protocol;
+import co.brachu.johann.exception.DockerComposeException;
+import co.brachu.johann.exception.ExecutionTimedOutException;
+import co.brachu.johann.exception.NonZeroExitCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

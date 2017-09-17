@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client.cli;
+package co.brachu.johann.cli;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import co.brachu.docker.compose.client.exception.ExecutionTimedOutException;
-import co.brachu.docker.compose.client.exception.NonZeroExitCodeException;
+import co.brachu.johann.exception.ExecutionTimedOutException;
+import co.brachu.johann.exception.NonZeroExitCodeException;
 
 final class CliUtils {
 

@@ -1,4 +1,4 @@
-package co.brachu.docker.compose.client;
+package co.brachu.johann;
 
 import java.util.List;
 

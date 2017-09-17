@@ -1,3 +1,3 @@
 @javax.annotation.ParametersAreNonnullByDefault
-package co.brachu.docker.compose.client.cli;
+package co.brachu.johann.exception;
 
