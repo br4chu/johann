@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import co.brachu.johann.ContainerId;
-import co.brachu.johann.DockerComposeExecutor;
 import co.brachu.johann.PortBinding;
 import co.brachu.johann.Protocol;
 import co.brachu.johann.cli.exception.ExecutionTimedOutException;
@@ -22,7 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DockerComposeCliExecutor implements DockerComposeExecutor {
+class DockerComposeCliExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(DockerComposeCliExecutor.class);
 
@@ -56,34 +55,29 @@ class DockerComposeCliExecutor implements DockerComposeExecutor {
         this.env = mapToEnvArray(env);
     }
 
-    @Override
     public void up() {
         log.debug("Starting docker-compose cluster");
         exec(upCmd);
     }
 
-    @Override
     public void down() {
         log.debug("Shutting down docker-compose cluster");
         exec(downCmd);
         log.debug("docker-compose cluster shut down");
     }
 
-    @Override
     public void kill() {
         log.debug("Killing docker-compose cluster");
         exec(killCmd);
         log.debug("docker-compose cluster killed");
     }
 
-    @Override
     public PortBinding binding(String containerName, Protocol protocol, int privatePort) {
         String[] params = { "--protocol", protocol.toString(), containerName, String.valueOf(privatePort) };
         String binding = exec(concat(portCmd, params));
         return new PortBinding(binding);
     }
 
-    @Override
     public List<ContainerId> ps() {
         String[] ids = exec(psCmd).split(System.lineSeparator());
         return Arrays.stream(ids).map(ContainerId::new).collect(Collectors.toList());
