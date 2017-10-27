@@ -1,8 +1,6 @@
 package co.brachu.johann.cli;
 
 import java.io.File;
-import java.net.URL;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +10,6 @@ import co.brachu.johann.ContainerPort;
 import co.brachu.johann.DockerCompose;
 import co.brachu.johann.PortBinding;
 import co.brachu.johann.Protocol;
-import co.brachu.johann.exception.ComposeFileNotFoundException;
 import co.brachu.johann.exception.DockerClientException;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
@@ -34,18 +31,20 @@ public class DockerComposeCli implements DockerCompose {
     private DockerClient dockerClient;
     private boolean up;
 
-    private DockerComposeCli(String executablePath, File file, Map<String, String> env) {
+    DockerComposeCli(String executablePath, File file, Map<String, String> env, boolean alreadyStarted) {
         String projectName = new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
+
+        if (alreadyStarted) {
+            upState();
+        }
     }
 
     @Override
     public void up() {
         Validate.isTrue(!up, "Cluster is already up");
 
-        up = true;
-        dockerClient = createDockerClient();
-
+        upState();
         composeExecutor.up();
     }
 
@@ -53,10 +52,7 @@ public class DockerComposeCli implements DockerCompose {
     public void down() {
         Validate.isTrue(up, "Cluster is not up");
 
-        up = false;
-        dockerClient.close();
-        dockerClient = null;
-
+        downState();
         composeExecutor.down();
     }
 
@@ -95,6 +91,17 @@ public class DockerComposeCli implements DockerCompose {
         log.debug("Cluster seems to be healthy");
     }
 
+    private void upState() {
+        up = true;
+        dockerClient = createDockerClient();
+    }
+
+    private void downState() {
+        up = false;
+        dockerClient.close();
+        dockerClient = null;
+    }
+
     private DefaultDockerClient createDockerClient() {
         try {
             return DefaultDockerClient.fromEnv().build();
@@ -118,76 +125,6 @@ public class DockerComposeCli implements DockerCompose {
         }
 
         return true;
-    }
-
-    public static class Builder implements DockerCompose.Builder {
-
-        private final String executablePath;
-        private java.io.File file;
-        private Map<String, String> env;
-
-        public Builder(String executablePath) {
-            this.executablePath = executablePath;
-            env = new LinkedHashMap<>();
-        }
-
-        @Override
-        public OngoingBuild.File file() {
-            return new Builder.File();
-        }
-
-        private void assertFileExistence(java.io.File file) {
-            if (!file.exists()) {
-                throw new ComposeFileNotFoundException("File " + file.getAbsolutePath() + " does not exist.");
-            }
-        }
-
-        private class File implements DockerCompose.OngoingBuild.File {
-
-            @Override
-            public OngoingBuild.Env classpath(String filePath) {
-                URL url = ClassLoader.getSystemResource(filePath);
-                if (url != null) {
-                    java.io.File file = new java.io.File(url.getPath());
-                    assertFileExistence(file);
-                    Builder.this.file = file;
-                    return new Env();
-                } else {
-                    throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
-                }
-            }
-
-            @Override
-            public OngoingBuild.Env absolute(String filePath) {
-                java.io.File file = new java.io.File(filePath);
-                assertFileExistence(file);
-                Builder.this.file = file;
-                return new Env();
-            }
-
-        }
-
-        private class Env implements DockerCompose.OngoingBuild.Env {
-
-            @Override
-            public OngoingBuild.Env env(String key, String value) {
-                env.put(key, value);
-                return this;
-            }
-
-            @Override
-            public OngoingBuild.Env env(Map<String, String> env) {
-                Builder.this.env.putAll(env);
-                return this;
-            }
-
-            @Override
-            public DockerCompose build() {
-                return new DockerComposeCli(executablePath, file, env);
-            }
-
-        }
-
     }
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import co.brachu.johann.cli.DockerComposeCli;
+import co.brachu.johann.cli.DockerComposeCliBuilder;
 
 public interface DockerCompose {
 
@@ -13,7 +13,7 @@ public interface DockerCompose {
     }
 
     static Builder builder(String executablePath) {
-        return new DockerComposeCli.Builder(executablePath);
+        return new DockerComposeCliBuilder(executablePath);
     }
 
     void up();
@@ -46,17 +46,27 @@ public interface DockerCompose {
                 return classpath("docker-compose.yml");
             }
 
-            OngoingBuild.Env classpath(String filePath);
+            Env classpath(String filePath);
 
-            OngoingBuild.Env absolute(String filePath);
+            Env absolute(String filePath);
 
         }
 
-        interface Env {
+        interface Env extends Tweak {
 
-            OngoingBuild.Env env(String key, String value);
+            Env env(String key, String value);
 
-            OngoingBuild.Env env(Map<String, String> env);
+            Env env(Map<String, String> env);
+
+        }
+
+        interface Tweak extends Finish {
+
+            Finish alreadyStarted();
+
+        }
+
+        interface Finish {
 
             DockerCompose build();
 
