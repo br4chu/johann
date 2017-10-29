@@ -1,5 +1,9 @@
 package co.brachu.johann.cli;
 
+import static co.brachu.johann.cli.EnvRetriever.DOCKER_CERT_PATH;
+import static co.brachu.johann.cli.EnvRetriever.DOCKER_HOST;
+import static co.brachu.johann.cli.EnvRetriever.DOCKER_TLS_VERIFY;
+
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -83,9 +87,7 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
 
     private class Finish implements DockerCompose.OngoingBuild.Finish {
 
-        public static final String DOCKER_HOST = "DOCKER_HOST";
-        public static final String DOCKER_TLS_VERIFY = "DOCKER_TLS_VERIFY";
-        public static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
+        private EnvRetriever envRetriever = new EnvRetriever();
 
         @Override
         public DockerCompose build() {
@@ -94,9 +96,9 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         }
 
         private void importSystemEnv() {
-            String dockerHost = System.getenv(DOCKER_HOST);
-            String tlsVerify = System.getenv(DOCKER_TLS_VERIFY);
-            String certPath = System.getenv(DOCKER_CERT_PATH);
+            String dockerHost = envRetriever.retrieveDockerHost();
+            String tlsVerify = envRetriever.retrieveTlsVerify();
+            String certPath = envRetriever.retrieveCertPath();
 
             if (dockerHost != null && !env.containsKey(DOCKER_HOST)) {
                 env.put(DOCKER_HOST, dockerHost);
