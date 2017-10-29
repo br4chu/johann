@@ -8,7 +8,7 @@ import spock.lang.Specification
 class JohannAcceptanceSpec extends Specification {
 
     def dockerCompose = DockerCompose.builder()
-            .file().classpath()
+            .classpath()
             .env('EXTERNAL_MANAGEMENT_PORT', '1337')
             .build()
 
@@ -74,7 +74,7 @@ class JohannAcceptanceSpec extends Specification {
     def "should show error from docker-compose cli"() {
         given:
         dockerCompose = DockerCompose.builder()
-                .file().classpath()
+                .classpath()
                 .build()
 
         when:

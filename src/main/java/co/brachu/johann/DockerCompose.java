@@ -32,9 +32,7 @@ public interface DockerCompose {
 
     void waitForCluster(long time, TimeUnit unit);
 
-    interface Builder {
-
-        OngoingBuild.File file();
+    interface Builder extends OngoingBuild.File {
 
     }
 

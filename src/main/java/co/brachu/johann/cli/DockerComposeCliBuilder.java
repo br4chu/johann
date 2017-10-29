@@ -4,6 +4,7 @@ import static co.brachu.johann.cli.EnvRetriever.DOCKER_CERT_PATH;
 import static co.brachu.johann.cli.EnvRetriever.DOCKER_HOST;
 import static co.brachu.johann.cli.EnvRetriever.DOCKER_TLS_VERIFY;
 
+import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,40 +24,31 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         env = new LinkedHashMap<>();
     }
 
-    @Override
-    public DockerCompose.OngoingBuild.File file() {
-        return new File();
-    }
-
     private void assertFileExistence(java.io.File file) {
         if (!file.exists()) {
             throw new ComposeFileNotFoundException("File " + file.getAbsolutePath() + " does not exist.");
         }
     }
 
-    private class File implements DockerCompose.OngoingBuild.File {
-
-        @Override
-        public DockerCompose.OngoingBuild.Env classpath(String filePath) {
-            URL url = ClassLoader.getSystemResource(filePath);
-            if (url != null) {
-                java.io.File file = new java.io.File(url.getPath());
-                assertFileExistence(file);
-                DockerComposeCliBuilder.this.file = file;
-                return new Env();
-            } else {
-                throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
-            }
-        }
-
-        @Override
-        public DockerCompose.OngoingBuild.Env absolute(String filePath) {
-            java.io.File file = new java.io.File(filePath);
+    @Override
+    public DockerCompose.OngoingBuild.Env classpath(String filePath) {
+        URL url = ClassLoader.getSystemResource(filePath);
+        if (url != null) {
+            File file = new File(url.getPath());
             assertFileExistence(file);
-            DockerComposeCliBuilder.this.file = file;
+            this.file = file;
             return new Env();
+        } else {
+            throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
         }
+    }
 
+    @Override
+    public DockerCompose.OngoingBuild.Env absolute(String filePath) {
+        File file = new File(filePath);
+        assertFileExistence(file);
+        this.file = file;
+        return new Env();
     }
 
     private class Env extends Tweak implements DockerCompose.OngoingBuild.Env {
