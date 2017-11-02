@@ -1,8 +1,8 @@
-package co.brachu.johann
+package io.brachu.johann
 
 import java.util.concurrent.TimeUnit
 
-import co.brachu.johann.exception.DockerComposeException
+import io.brachu.johann.exception.DockerComposeException
 import spock.lang.Specification
 
 class JohannAcceptanceSpec extends Specification {

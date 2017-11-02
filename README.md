@@ -9,7 +9,7 @@ Once Johann is uploaded to Maven Central, you will be able to add it as a maven/
 Maven dependency:
 ```xml
 <dependency>
-    <groupId>co.brachu</groupId>
+    <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
@@ -17,7 +17,7 @@ Maven dependency:
 
 Gradle dependency:
 ```groovy
-compile 'co.brachu:johann:0.1.0-SNAPSHOT'
+compile 'io.brachu:johann:0.1.0-SNAPSHOT'
 ```
 
 ## Requirements

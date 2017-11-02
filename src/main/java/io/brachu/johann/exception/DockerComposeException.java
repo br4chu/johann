@@ -1,4 +1,4 @@
-package co.brachu.johann.exception;
+package io.brachu.johann.exception;
 
 public class DockerComposeException extends RuntimeException {
 

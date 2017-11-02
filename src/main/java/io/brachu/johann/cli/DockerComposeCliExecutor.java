@@ -1,4 +1,4 @@
-package co.brachu.johann.cli;
+package io.brachu.johann.cli;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import co.brachu.johann.ContainerId;
-import co.brachu.johann.PortBinding;
-import co.brachu.johann.Protocol;
-import co.brachu.johann.cli.exception.ExecutionTimedOutException;
-import co.brachu.johann.cli.exception.NonZeroExitCodeException;
-import co.brachu.johann.exception.DockerComposeException;
+import io.brachu.johann.ContainerId;
+import io.brachu.johann.PortBinding;
+import io.brachu.johann.Protocol;
+import io.brachu.johann.cli.exception.ExecutionTimedOutException;
+import io.brachu.johann.cli.exception.NonZeroExitCodeException;
+import io.brachu.johann.exception.DockerComposeException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

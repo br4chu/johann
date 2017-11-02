@@ -1,16 +1,16 @@
-package co.brachu.johann.cli;
+package io.brachu.johann.cli;
 
-import static co.brachu.johann.cli.EnvRetriever.DOCKER_CERT_PATH;
-import static co.brachu.johann.cli.EnvRetriever.DOCKER_HOST;
-import static co.brachu.johann.cli.EnvRetriever.DOCKER_TLS_VERIFY;
+import static io.brachu.johann.cli.EnvRetriever.DOCKER_CERT_PATH;
+import static io.brachu.johann.cli.EnvRetriever.DOCKER_HOST;
+import static io.brachu.johann.cli.EnvRetriever.DOCKER_TLS_VERIFY;
 
 import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import co.brachu.johann.DockerCompose;
-import co.brachu.johann.exception.ComposeFileNotFoundException;
+import io.brachu.johann.DockerCompose;
+import io.brachu.johann.exception.ComposeFileNotFoundException;
 
 public class DockerComposeCliBuilder implements DockerCompose.Builder {
 

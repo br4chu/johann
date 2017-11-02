@@ -1,4 +1,4 @@
-package co.brachu.johann;
+package io.brachu.johann;
 
 public enum Protocol {
 

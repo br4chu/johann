@@ -1,4 +1,4 @@
-package co.brachu.johann.cli;
+package io.brachu.johann.cli;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import co.brachu.johann.cli.exception.ExecutionTimedOutException;
-import co.brachu.johann.cli.exception.NonZeroExitCodeException;
+import io.brachu.johann.cli.exception.ExecutionTimedOutException;
+import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

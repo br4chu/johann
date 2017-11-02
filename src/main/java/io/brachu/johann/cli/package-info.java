@@ -1,3 +1,3 @@
 @javax.annotation.ParametersAreNonnullByDefault
-package co.brachu.johann.cli;
+package io.brachu.johann.cli;
 

@@ -1,3 +1,3 @@
 @javax.annotation.ParametersAreNonnullByDefault
-package co.brachu.johann.exception;
+package io.brachu.johann.cli.exception;
 
