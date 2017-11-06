@@ -40,13 +40,19 @@ public interface DockerCompose {
 
         interface File {
 
-            default OngoingBuild.Env classpath() {
+            default OngoingBuild.Project classpath() {
                 return classpath("docker-compose.yml");
             }
 
-            Env classpath(String filePath);
+            Project classpath(String filePath);
 
-            Env absolute(String filePath);
+            Project absolute(String filePath);
+
+        }
+
+        interface Project extends Env {
+
+            Env projectName(String projectName);
 
         }
 

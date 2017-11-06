@@ -11,11 +11,14 @@ import java.util.Map;
 
 import io.brachu.johann.DockerCompose;
 import io.brachu.johann.exception.ComposeFileNotFoundException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 public class DockerComposeCliBuilder implements DockerCompose.Builder {
 
     private final String executablePath;
     private java.io.File file;
+    private String projectName;
     private Map<String, String> env;
     private boolean alreadyStarted;
 
@@ -31,24 +34,35 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
     }
 
     @Override
-    public DockerCompose.OngoingBuild.Env classpath(String filePath) {
+    public DockerCompose.OngoingBuild.Project classpath(String filePath) {
         URL url = ClassLoader.getSystemResource(filePath);
         if (url != null) {
             File file = new File(url.getPath());
             assertFileExistence(file);
             this.file = file;
-            return new Env();
+            return new Project();
         } else {
             throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
         }
     }
 
     @Override
-    public DockerCompose.OngoingBuild.Env absolute(String filePath) {
+    public DockerCompose.OngoingBuild.Project absolute(String filePath) {
         File file = new File(filePath);
         assertFileExistence(file);
         this.file = file;
-        return new Env();
+        return new Project();
+    }
+
+    private class Project extends Env implements DockerCompose.OngoingBuild.Project {
+
+        @Override
+        public DockerCompose.OngoingBuild.Env projectName(String projectName) {
+            Validate.isTrue(StringUtils.isAlphanumeric(projectName), "Due to security reasons, projectName must be alphanumeric");
+            DockerComposeCliBuilder.this.projectName = projectName;
+            return this;
+        }
+
     }
 
     private class Env extends Tweak implements DockerCompose.OngoingBuild.Env {
@@ -84,7 +98,7 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         @Override
         public DockerCompose build() {
             importSystemEnv();
-            return new DockerComposeCli(executablePath, file, env, alreadyStarted);
+            return new DockerComposeCli(executablePath, file, projectName, env, alreadyStarted);
         }
 
         private void importSystemEnv() {

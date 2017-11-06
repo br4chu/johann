@@ -85,4 +85,24 @@ class JohannAcceptanceSpec extends Specification {
         ex.message.startsWith('Non-zero (1) exit code returned from \'docker-compose -f')
     }
 
+    def "should pass project name to docker-compose"() {
+        given:
+        dockerCompose = DockerCompose.builder()
+                .classpath()
+                .projectName("johann")
+                .env('EXTERNAL_MANAGEMENT_PORT', '1337')
+                .build()
+
+        when:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+        def containerPort = dockerCompose.port("rabbitmq", 15672)
+
+        then:
+        containerPort.port == 1337
+
+        cleanup:
+        dockerCompose.down()
+    }
+
 }

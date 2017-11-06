@@ -17,6 +17,7 @@ import io.brachu.johann.DockerCompose;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.exception.DockerClientException;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.RandomStringGenerator;
 import org.awaitility.Awaitility;
@@ -31,9 +32,9 @@ public class DockerComposeCli implements DockerCompose {
     private DockerClient dockerClient;
     private boolean up;
 
-    DockerComposeCli(String executablePath, File file, Map<String, String> env, boolean alreadyStarted) {
-        String projectName = new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
-        composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
+    DockerComposeCli(String executablePath, File file, String projectName, Map<String, String> env, boolean alreadyStarted) {
+        String executorProjectName = ObjectUtils.firstNonNull(projectName, randomString());
+        composeExecutor = new DockerComposeCliExecutor(executablePath, file, executorProjectName, env);
 
         if (alreadyStarted) {
             upState();
@@ -89,6 +90,10 @@ public class DockerComposeCli implements DockerCompose {
                 .until(this::containersHealthyOrRunning);
 
         log.debug("Cluster seems to be healthy");
+    }
+
+    private String randomString() {
+        return new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
     }
 
     private void upState() {
