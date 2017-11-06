@@ -8,13 +8,15 @@ import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.brachu.johann.DockerCompose;
 import io.brachu.johann.exception.ComposeFileNotFoundException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 public class DockerComposeCliBuilder implements DockerCompose.Builder {
+
+    private static final Pattern VALID_PROJECT_NAME = Pattern.compile("[a-zA-Z0-9_-]+");
 
     private final String executablePath;
     private java.io.File file;
@@ -58,7 +60,9 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
 
         @Override
         public DockerCompose.OngoingBuild.Env projectName(String projectName) {
-            Validate.isTrue(StringUtils.isAlphanumeric(projectName), "Due to security reasons, projectName must be alphanumeric");
+            Validate.isTrue(VALID_PROJECT_NAME.matcher(projectName).matches(),
+                    "Due to security reasons, projectName must match " + VALID_PROJECT_NAME.toString() + " regex pattern");
+
             DockerComposeCliBuilder.this.projectName = projectName;
             return this;
         }

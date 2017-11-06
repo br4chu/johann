@@ -93,6 +93,18 @@ DockerCompose compose = DockerCompose.builder()
     .build();
 ```
 
+#### Assinging project name to your compose cluster
+
+By default, Johann generates random string and passes it to `docker-compose` command as a project name.
+You can override this behaviour by passing your own project name to the builder:
+
+```java
+DockerCompose compose = DockerCompose.builder()
+    .classpath()
+    .projectName("customProjectName")
+    .build();
+```
+
 ### Remote docker engine
 
 Johann can connect to a remote Docker Engine if `DOCKER_HOST` is passed to the Java process that runs Johann.

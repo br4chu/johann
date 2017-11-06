@@ -89,7 +89,7 @@ class JohannAcceptanceSpec extends Specification {
         given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
-                .projectName("johann")
+                .projectName("_johann-0")
                 .env('EXTERNAL_MANAGEMENT_PORT', '1337')
                 .build()
 
@@ -103,6 +103,17 @@ class JohannAcceptanceSpec extends Specification {
 
         cleanup:
         dockerCompose.down()
+    }
+
+    def "should reject invalid project name"() {
+        when:
+        DockerCompose.builder()
+                .classpath()
+                .projectName(";'[]")
+
+        then:
+        def ex = thrown IllegalArgumentException
+        ex.getMessage() == 'Due to security reasons, projectName must match [a-zA-Z0-9_-]+ regex pattern'
     }
 
 }
