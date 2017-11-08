@@ -8,7 +8,7 @@
     <version>0.1.0-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Johann is a simple Java library able to communicate with docker-compose CLI from within JVM</description>
+    <description>Johann is a simple Java library that communicates with docker-compose CLI</description>
     <url>https://github.com/br4chu/johann</url>
 
     <licenses>
@@ -144,7 +144,7 @@
                             <annotations>
                                 <annotation>@javax.annotation.ParametersAreNonnullByDefault</annotation>
                             </annotations>
-                            <regex>co\.brachu\..*</regex>
+                            <regex>io\.brachu\..*</regex>
                         </package>
                     </packages>
                 </configuration>
