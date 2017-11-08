@@ -1,6 +1,6 @@
 # Introduction
 
-Johann is a simple Java library giving you the ability to communicate with docker-compose CLI from within JVM.
+Johann is a simple Java library that communicates with docker-compose CLI.
 
 # Getting started
 
@@ -111,3 +111,8 @@ Johann can connect to a remote Docker Engine if `DOCKER_HOST` is passed to the J
 `DOCKER_TLS_VERIFY` and `DOCKER_CERT_PATH` variables are also supported.
 
 You can read more about these variables [here](https://docs.docker.com/compose/production/#running-compose-on-a-single-server).
+
+## Running test suite
+
+In order to run the test suite properly, your local machine must have docker and docker-compose installed.
+Version requirements are posted at the top of this README.
