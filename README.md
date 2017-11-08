@@ -107,7 +107,7 @@ DockerCompose compose = DockerCompose.builder()
 
 ### Remote docker engine
 
-Johann can connect to a remote Docker Engine if `DOCKER_HOST` is passed to the Java process that runs Johann.
+Johann can connect to a remote Docker Engine if `DOCKER_HOST` environment variable is passed to the Java process that runs Johann.
 `DOCKER_TLS_VERIFY` and `DOCKER_CERT_PATH` variables are also supported.
 
 You can read more about these variables [here](https://docs.docker.com/compose/production/#running-compose-on-a-single-server).
