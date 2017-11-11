@@ -105,6 +105,33 @@ DockerCompose compose = DockerCompose.builder()
     .build();
 ```
 
+#### Retrieving host port of a container
+
+Assuming your docker-compose.yml file looks something like this:
+
+```yaml
+version: '2.1'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.6.10-alpine
+    ports:
+      - "5672"
+```
+
+You can retrieve a host port bound to container's 5672 port by calling Johann's `port` method as follows:
+
+```java
+ContainerPort containerPort = compose.port("rabbitmq", 5672);
+int port = containerPort.getPort();
+```
+
+You can even use `ContainerPort::format` method to create proper URL address in one line:
+
+```java
+String url = compose.port("rabbitmq", 5672).format("tcp://$HOST:$PORT");
+```
+
 ### Remote docker engine
 
 Johann can connect to a remote Docker Engine if `DOCKER_HOST` environment variable is passed to the Java process that runs Johann.
