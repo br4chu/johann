@@ -4,7 +4,6 @@ Johann is a simple Java library that communicates with docker-compose CLI.
 
 # Getting started
 
-Once Johann is uploaded to Maven Central, you will be able to add it as a maven/gradle dependency and start using it.
 Just add Johann as a maven/gradle dependency and start using it. See [Example usage](#example-usage) for more information.
 
 Maven dependency:
