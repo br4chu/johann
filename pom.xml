@@ -8,7 +8,7 @@
     <version>0.2.0-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Johann is a simple Java library that communicates with docker-compose CLI</description>
+    <description>Johann is a simple Java library that communicates with docker-compose CLI.</description>
     <url>https://github.com/br4chu/johann</url>
 
     <licenses>
