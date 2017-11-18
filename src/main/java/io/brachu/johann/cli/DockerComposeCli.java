@@ -92,6 +92,11 @@ public class DockerComposeCli implements DockerCompose {
         log.debug("Cluster seems to be healthy");
     }
 
+    @Override
+    public String getProjectName() {
+        return composeExecutor.getProjectName();
+    }
+
     private String randomString() {
         return new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
     }

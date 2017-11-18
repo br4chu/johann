@@ -22,15 +22,17 @@ public interface DockerCompose {
 
     void kill();
 
+    ContainerPort port(String containerName, Protocol protocol, int privatePort);
+
     default ContainerPort port(String containerName, int privatePort) {
         return port(containerName, Protocol.TCP, privatePort);
     }
 
-    ContainerPort port(String containerName, Protocol protocol, int privatePort);
-
     List<ContainerId> ps();
 
     void waitForCluster(long time, TimeUnit unit);
+
+    String getProjectName();
 
     interface Builder extends OngoingBuild.File {
 

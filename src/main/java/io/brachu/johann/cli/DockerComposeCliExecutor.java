@@ -31,6 +31,7 @@ class DockerComposeCliExecutor {
     private static final String[] PORT_COMMAND = { "port" };
     private static final String[] PS_COMMAND = { "ps", "-q" };
 
+    private final String projectName;
     private final String composeFileContent;
 
     private final String[] upCmd;
@@ -44,6 +45,7 @@ class DockerComposeCliExecutor {
     DockerComposeCliExecutor(String executablePath, File composeFile, String projectName, Map<String, String> env) {
         String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
 
+        this.projectName = projectName;
         composeFileContent = readComposeFile(composeFile);
 
         upCmd = concat(cmdPrefix, UP_COMMAND);
@@ -55,21 +57,25 @@ class DockerComposeCliExecutor {
         this.env = mapToEnvArray(env);
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
     public void up() {
-        log.debug("Starting docker-compose cluster");
+        log.debug("Starting cluster");
         exec(upCmd);
     }
 
     public void down() {
-        log.debug("Shutting down docker-compose cluster");
+        log.debug("Shutting down cluster");
         exec(downCmd);
-        log.debug("docker-compose cluster shut down");
+        log.debug("Cluster shut down");
     }
 
     public void kill() {
-        log.debug("Killing docker-compose cluster");
+        log.debug("Killing cluster");
         exec(killCmd);
-        log.debug("docker-compose cluster killed");
+        log.debug("Cluster killed");
     }
 
     public PortBinding binding(String containerName, Protocol protocol, int privatePort) {

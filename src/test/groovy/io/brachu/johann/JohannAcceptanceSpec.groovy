@@ -89,7 +89,7 @@ class JohannAcceptanceSpec extends Specification {
         given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
-                .projectName("_johann-0")
+                .projectName('_johann-0')
                 .env('EXTERNAL_MANAGEMENT_PORT', '1337')
                 .build()
 
@@ -100,6 +100,7 @@ class JohannAcceptanceSpec extends Specification {
 
         then:
         containerPort.port == 1337
+        dockerCompose.projectName == '_johann-0'
 
         cleanup:
         dockerCompose.down()
