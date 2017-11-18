@@ -19,12 +19,15 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>Brachu</name>
+        <url>https://github.com/br4chu</url>
+    </organization>
+
     <developers>
         <developer>
             <name>Marcin Jaguś</name>
             <email>marcin.jagus@protonmail.com</email>
-            <organization>Brachu</organization>
-            <organizationUrl>https://github.com/br4chu</organizationUrl>
         </developer>
     </developers>
 
