@@ -44,7 +44,7 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
             this.file = file;
             return new Project();
         } else {
-            throw new ComposeFileNotFoundException("Path " + filePath + " not found in the classpath.");
+            throw new ComposeFileNotFoundException("File " + filePath + " not found in the classpath.");
         }
     }
 
