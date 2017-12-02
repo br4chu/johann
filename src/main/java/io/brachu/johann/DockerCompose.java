@@ -14,11 +14,11 @@ public interface DockerCompose {
 
     void kill();
 
-    ContainerPort port(String containerName, Protocol protocol, int privatePort);
+    boolean isUp();
 
-    default ContainerPort port(String containerName, int privatePort) {
-        return port(containerName, Protocol.TCP, privatePort);
-    }
+    ContainerPort port(String containerName, int privatePort);
+
+    ContainerPort port(String containerName, Protocol protocol, int privatePort);
 
     List<ContainerId> ps();
 

@@ -157,7 +157,9 @@ class JohannAcceptanceSpec extends Specification {
         thrown DockerComposeException
 
         cleanup:
-        dockerCompose.down()
+        if (dockerCompose.isUp()) {
+            dockerCompose.down()
+        }
     }
 
 }

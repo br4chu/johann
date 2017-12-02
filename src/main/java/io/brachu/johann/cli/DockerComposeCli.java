@@ -65,6 +65,16 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     @Override
+    public boolean isUp() {
+        return !composeExecutor.ps().isEmpty();
+    }
+
+    @Override
+    public ContainerPort port(String containerName, int privatePort) {
+        return port(containerName, Protocol.TCP, privatePort);
+    }
+
+    @Override
     public ContainerPort port(String containerName, Protocol protocol, int privatePort) {
         Validate.isTrue(isUp(), "Cluster is not up");
         PortBinding binding = composeExecutor.binding(containerName, protocol, privatePort);
@@ -112,10 +122,6 @@ public class DockerComposeCli implements DockerCompose {
         } catch (DockerCertificateException e) {
             throw new DockerClientException("Certificate failure during creation of a docker client.", e);
         }
-    }
-
-    private boolean isUp() {
-        return !composeExecutor.ps().isEmpty();
     }
 
     private boolean containersHealthyOrRunning() throws DockerException, InterruptedException {
