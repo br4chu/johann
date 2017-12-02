@@ -148,4 +148,17 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
+    def "Timeout should result in a meaningful exception"() {
+        when:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.SECONDS)
+
+        then:
+        def ex = thrown DockerComposeException
+        ex.getMessage() == 'Timed out while waiting for cluster to be healthy.'
+
+        cleanup:
+        dockerCompose.down()
+    }
+
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
@@ -17,6 +18,7 @@ import io.brachu.johann.DockerCompose;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.exception.DockerClientException;
+import io.brachu.johann.exception.DockerComposeException;
 import io.brachu.johann.project.ProjectNameProvider;
 import org.apache.commons.lang3.Validate;
 import org.awaitility.Awaitility;
@@ -83,10 +85,18 @@ public class DockerComposeCli implements DockerCompose {
 
         log.debug("Waiting for cluster to be healthy");
 
-        Awaitility.await()
-                .pollInterval(500, TimeUnit.MILLISECONDS)
-                .atMost(time, unit)
-                .until(this::containersHealthyOrRunning);
+        try {
+            Awaitility.await()
+                    .pollInterval(500, TimeUnit.MILLISECONDS)
+                    .atMost(time, unit)
+                    .until(this::containersHealthyOrRunning);
+        } catch (Exception ex) {
+            if (ex.getClass().getSimpleName().equals(TimeoutException.class.getSimpleName())) {
+                throw new DockerComposeException("Timed out while waiting for cluster to be healthy.", ex);
+            } else {
+                throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
+            }
+        }
 
         log.debug("Cluster seems to be healthy");
     }
