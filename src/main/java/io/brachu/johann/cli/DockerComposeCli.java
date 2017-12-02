@@ -84,7 +84,7 @@ public class DockerComposeCli implements DockerCompose {
         log.debug("Waiting for cluster to be healthy");
 
         Awaitility.await()
-                .pollInterval(1, TimeUnit.SECONDS)
+                .pollInterval(500, TimeUnit.MILLISECONDS)
                 .atMost(time, unit)
                 .until(this::containersHealthyOrRunning);
 
