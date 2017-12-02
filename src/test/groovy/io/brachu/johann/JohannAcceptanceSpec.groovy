@@ -72,13 +72,10 @@ class JohannAcceptanceSpec extends Specification {
     }
 
     def "should show error from docker-compose cli"() {
-        given:
+        when:
         dockerCompose = DockerCompose.builder()
                 .classpath()
                 .build()
-
-        when:
-        dockerCompose.up()
 
         then:
         def ex = thrown DockerComposeException
@@ -132,6 +129,20 @@ class JohannAcceptanceSpec extends Specification {
 
         then:
         dockerCompose.projectName == expectedProjectName
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should return meaningful error message when a private port is not bound to any of the host's ports"() {
+        when:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+        dockerCompose.port("postgresql", 5433)
+
+        then:
+        def ex = thrown DockerComposeException
+        ex.getMessage() == "No host port is bound to 'postgresql' container's 5433 tcp port."
 
         cleanup:
         dockerCompose.down()

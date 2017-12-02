@@ -82,7 +82,13 @@ class DockerComposeCliExecutor {
     public PortBinding binding(String containerName, Protocol protocol, int privatePort) {
         String[] params = { "--protocol", protocol.toString(), containerName, String.valueOf(privatePort) };
         String binding = exec(concat(portCmd, params));
-        return new PortBinding(binding);
+
+        if (StringUtils.isNotBlank(binding)) {
+            return new PortBinding(binding);
+        } else {
+            throw new DockerComposeException("No host port is bound to '" + containerName + "' container's " + privatePort + " " + protocol.toString()
+                    + " port.");
+        }
     }
 
     public List<ContainerId> ps() {
