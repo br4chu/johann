@@ -91,8 +91,10 @@ public class DockerComposeCli implements DockerCompose {
                     .atMost(time, unit)
                     .until(this::containersHealthyOrRunning);
         } catch (ConditionTimeoutException ex) {
+            down();
             throw new DockerComposeException("Timed out while waiting for cluster to be healthy.", ex);
         } catch (Exception ex) {
+            down();
             throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
         }
 
