@@ -33,6 +33,10 @@ public class DockerComposeCli implements DockerCompose {
     DockerComposeCli(String executablePath, File file, ProjectNameProvider projectNameProvider, Map<String, String> env) {
         String projectName = projectNameProvider.provide();
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
+
+        if (isUp()) {
+            dockerClient = createDockerClient();
+        }
     }
 
     @Override
