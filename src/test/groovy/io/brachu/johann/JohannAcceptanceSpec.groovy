@@ -154,8 +154,7 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.waitForCluster(1, TimeUnit.SECONDS)
 
         then:
-        def ex = thrown DockerComposeException
-        ex.getMessage() == 'Timed out while waiting for cluster to be healthy.'
+        thrown DockerComposeException
 
         cleanup:
         dockerCompose.down()
