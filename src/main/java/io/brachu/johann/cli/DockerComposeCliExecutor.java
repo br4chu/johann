@@ -18,6 +18,7 @@ import io.brachu.johann.cli.exception.ExecutionTimedOutException;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import io.brachu.johann.exception.DockerComposeException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ class DockerComposeCliExecutor {
 
     public List<ContainerId> ps() {
         String[] ids = exec(psCmd).split(System.lineSeparator());
-        return Arrays.stream(ids).map(ContainerId::new).collect(Collectors.toList());
+        return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
     private String exec(String[] cmd) {

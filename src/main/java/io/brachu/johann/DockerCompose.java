@@ -8,14 +8,6 @@ import io.brachu.johann.cli.DockerComposeCliBuilder;
 
 public interface DockerCompose {
 
-    static Builder builder() {
-        return builder("docker-compose");
-    }
-
-    static Builder builder(String executablePath) {
-        return new DockerComposeCliBuilder(executablePath);
-    }
-
     void up();
 
     void down();
@@ -34,6 +26,14 @@ public interface DockerCompose {
 
     String getProjectName();
 
+    static Builder builder() {
+        return builder("docker-compose");
+    }
+
+    static Builder builder(String executablePath) {
+        return new DockerComposeCliBuilder(executablePath);
+    }
+
     interface Builder extends OngoingBuild.File {
 
     }
@@ -43,7 +43,7 @@ public interface DockerCompose {
         interface File {
 
             default OngoingBuild.Project classpath() {
-                return classpath("docker-compose.yml");
+                return classpath("/docker-compose.yml");
             }
 
             Project classpath(String filePath);
@@ -58,17 +58,11 @@ public interface DockerCompose {
 
         }
 
-        interface Env extends Tweak {
+        interface Env extends Finish {
 
             Env env(String key, String value);
 
             Env env(Map<String, String> env);
-
-        }
-
-        interface Tweak extends Finish {
-
-            Finish alreadyStarted();
 
         }
 

@@ -17,9 +17,8 @@ import io.brachu.johann.DockerCompose;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.exception.DockerClientException;
-import org.apache.commons.lang3.ObjectUtils;
+import io.brachu.johann.project.ProjectNameProvider;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.text.RandomStringGenerator;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,55 +29,51 @@ public class DockerComposeCli implements DockerCompose {
 
     private final DockerComposeCliExecutor composeExecutor;
     private DockerClient dockerClient;
-    private boolean up;
 
-    DockerComposeCli(String executablePath, File file, String projectName, Map<String, String> env, boolean alreadyStarted) {
-        String executorProjectName = ObjectUtils.firstNonNull(projectName, randomString());
-        composeExecutor = new DockerComposeCliExecutor(executablePath, file, executorProjectName, env);
-
-        if (alreadyStarted) {
-            upState();
-        }
+    DockerComposeCli(String executablePath, File file, ProjectNameProvider projectNameProvider, Map<String, String> env) {
+        String projectName = projectNameProvider.provide();
+        composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
     }
 
     @Override
     public void up() {
-        Validate.isTrue(!up, "Cluster is already up");
+        Validate.isTrue(!isUp(), "Cluster is already up");
 
-        upState();
+        dockerClient = createDockerClient();
         composeExecutor.up();
     }
 
     @Override
     public void down() {
-        Validate.isTrue(up, "Cluster is not up");
+        Validate.isTrue(isUp(), "Cluster is not up");
 
-        downState();
+        dockerClient.close();
+        dockerClient = null;
         composeExecutor.down();
     }
 
     @Override
     public void kill() {
-        Validate.isTrue(up, "Cluster is not up");
+        Validate.isTrue(isUp(), "Cluster is not up");
         composeExecutor.kill();
     }
 
     @Override
     public ContainerPort port(String containerName, Protocol protocol, int privatePort) {
-        Validate.isTrue(up, "Cluster is not up");
+        Validate.isTrue(isUp(), "Cluster is not up");
         PortBinding binding = composeExecutor.binding(containerName, protocol, privatePort);
         return new ContainerPort(dockerClient.getHost(), binding);
     }
 
     @Override
     public List<ContainerId> ps() {
-        Validate.isTrue(up, "Cluster is not up");
+        Validate.isTrue(isUp(), "Cluster is not up");
         return composeExecutor.ps();
     }
 
     @Override
     public void waitForCluster(long time, TimeUnit unit) {
-        Validate.isTrue(up, "Cluster is not up");
+        Validate.isTrue(isUp(), "Cluster is not up");
         Validate.isTrue(unit.ordinal() >= TimeUnit.SECONDS.ordinal(), "Time unit cannot be smaller than SECONDS");
         Validate.isTrue(time > 0, "Time to wait must be positive");
 
@@ -97,27 +92,16 @@ public class DockerComposeCli implements DockerCompose {
         return composeExecutor.getProjectName();
     }
 
-    private String randomString() {
-        return new RandomStringGenerator.Builder().withinRange('a', 'z').build().generate(8);
-    }
-
-    private void upState() {
-        up = true;
-        dockerClient = createDockerClient();
-    }
-
-    private void downState() {
-        up = false;
-        dockerClient.close();
-        dockerClient = null;
-    }
-
     private DefaultDockerClient createDockerClient() {
         try {
             return DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException e) {
             throw new DockerClientException("Certificate failure during creation of a docker client.", e);
         }
+    }
+
+    private boolean isUp() {
+        return !composeExecutor.ps().isEmpty();
     }
 
     private boolean containersHealthyOrRunning() throws DockerException, InterruptedException {

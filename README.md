@@ -38,13 +38,13 @@ DockerCompose compose = DockerCompose.builder().classpath().build();
 #### Running docker-compose.yml file with custom name in one of the root directories of classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().classpath("custom-compose-file.yml").build();
+DockerCompose compose = DockerCompose.builder().classpath("/custom-compose-file.yml").build();
 ```
 
 #### Running docker-compose.yml file in one of the subdirectories of the classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().classpath("path/to/docker-compose.yml").build();
+DockerCompose compose = DockerCompose.builder().classpath("/path/to/docker-compose.yml").build();
 ```
 
 #### Running docker-compose.yml file outside of classpath
@@ -126,7 +126,7 @@ ContainerPort containerPort = compose.port("rabbitmq", 5672);
 int port = containerPort.getPort();
 ```
 
-You can even use `ContainerPort::format` method to create proper URL address in one line:
+You can even use `ContainerPort::format` method to create proper URL address with one-liner:
 
 ```java
 String url = compose.port("rabbitmq", 5672).format("tcp://$HOST:$PORT");

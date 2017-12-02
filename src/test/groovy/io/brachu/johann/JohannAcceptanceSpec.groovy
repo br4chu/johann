@@ -117,4 +117,24 @@ class JohannAcceptanceSpec extends Specification {
         ex.getMessage() == 'Due to security reasons, projectName must match [a-zA-Z0-9_-]+ regex pattern'
     }
 
+    def "should retrieve project name from docker-compose-maven-plugin system property when specified"() {
+        given:
+        def expectedProjectName = 'helloFromMaven'
+        System.setProperty('maven.dockerCompose.project', expectedProjectName)
+        dockerCompose = DockerCompose.builder()
+                .classpath()
+                .env('EXTERNAL_MANAGEMENT_PORT', '1337')
+                .build()
+
+        when:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        then:
+        dockerCompose.projectName == expectedProjectName
+
+        cleanup:
+        dockerCompose.down()
+    }
+
 }
