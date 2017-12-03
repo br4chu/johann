@@ -11,13 +11,13 @@ Maven dependency:
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 ```groovy
-compile 'io.brachu:johann:0.1.0'
+compile 'io.brachu:johann:0.2.0'
 ```
 
 ## Requirements
@@ -104,6 +104,11 @@ DockerCompose compose = DockerCompose.builder()
     .projectName("customProjectName")
     .build();
 ```
+
+Note: As of version 0.2.0, Johann will first try to detect if it's being run in the context of
+[docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin). If it is, it will reuse the project name used in the `up` goal of that
+plugin. If it does not, only then it will generate a random project name. This still happens only when you don't specify your own project name via the builder's
+`projectName` method.
 
 #### Retrieving host port of a container
 
