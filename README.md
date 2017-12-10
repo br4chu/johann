@@ -105,10 +105,42 @@ DockerCompose compose = DockerCompose.builder()
     .build();
 ```
 
-Note: As of version 0.2.0, Johann will first try to detect if it's being run in the context of
-[docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin). If it is, it will reuse the project name used in the `up` goal of that
-plugin. If it does not, only then it will generate a random project name. This still happens only when you don't specify your own project name via the builder's
-`projectName` method.
+### Integration with docker-compose-maven-plugin
+
+As of version 0.2.0, Johann will first try to detect if it's being run in the context of
+[docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin) before generating random project name. If it is, it will reuse the project
+name set during the `up` goal of docker-compose-maven-plugin. If it does not, only then it will generate a random project name.
+
+Internally this works by trying to read the value of `maven.dockerCompose.project` system property that is set during `up` goal of docker-compose-maven-plugin.
+
+Please note that it will not work by default due to how maven-failsafe-plugin executes its test suite.
+In order to make this integration work, you will need to either disable forking in maven-failesafe-plugin with `forkCount` property:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-failsafe-plugin</artifactId>
+    <version>${failsafe-plugin.version}</version>
+    <configuration>
+        <forkCount>0</forkCount>
+    </configuration>
+</plugin>
+```
+
+or pass docker-compose-maven-plugin's system property manually to forked process:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-failsafe-plugin</artifactId>
+    <version>${failsafe-plugin.version}</version>
+    <configuration>
+        <systemPropertyVariables>
+            <maven.dockerCompose.project>${maven.dockerCompose.project}</maven.dockerCompose.project>
+        </systemPropertyVariables>
+    </configuration>
+</plugin>
+```
 
 #### Retrieving host port of a container
 
@@ -124,7 +156,7 @@ services:
       - "5672"
 ```
 
-You can retrieve a host port bound to container's 5672 port by calling Johann's `port` method as follows:
+You can retrieve a host port bound to container's 5672 port by invoking Johann's `port` method as follows:
 
 ```java
 ContainerPort containerPort = compose.port("rabbitmq", 5672);
