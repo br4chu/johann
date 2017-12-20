@@ -70,14 +70,14 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     @Override
-    public ContainerPort port(String containerName, int privatePort) {
-        return port(containerName, Protocol.TCP, privatePort);
+    public ContainerPort port(String serviceName, int privatePort) {
+        return port(serviceName, Protocol.TCP, privatePort);
     }
 
     @Override
-    public ContainerPort port(String containerName, Protocol protocol, int privatePort) {
+    public ContainerPort port(String serviceName, Protocol protocol, int privatePort) {
         Validate.isTrue(isUp(), "Cluster is not up");
-        PortBinding binding = composeExecutor.binding(containerName, protocol, privatePort);
+        PortBinding binding = composeExecutor.binding(serviceName, protocol, privatePort);
         return new ContainerPort(dockerClient.getHost(), binding);
     }
 
@@ -85,6 +85,12 @@ public class DockerComposeCli implements DockerCompose {
     public List<ContainerId> ps() {
         Validate.isTrue(isUp(), "Cluster is not up");
         return composeExecutor.ps();
+    }
+
+    @Override
+    public List<ContainerId> ps(String serviceName) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        return composeExecutor.ps(serviceName);
     }
 
     @Override
@@ -108,7 +114,41 @@ public class DockerComposeCli implements DockerCompose {
             throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
         }
 
-        log.debug("Cluster seems to be healthy");
+        log.debug("Cluster appears to be healthy");
+    }
+
+    @Override
+    public void start(String serviceName) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.start(serviceName);
+    }
+
+    @Override
+    public void stop(String serviceName) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.stop(serviceName);
+    }
+
+    @Override
+    public void waitForService(String serviceName, long time, TimeUnit unit) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        Validate.isTrue(unit.ordinal() >= TimeUnit.SECONDS.ordinal(), "Time unit cannot be smaller than SECONDS");
+        Validate.isTrue(time > 0, "Time to wait must be positive");
+
+        log.debug("Waiting for service " + serviceName + " to be healthly");
+
+        try {
+            Awaitility.await()
+                    .pollInterval(500, TimeUnit.MILLISECONDS)
+                    .atMost(time, unit)
+                    .until(() -> containersHealthyOrRunning(ps(serviceName)));
+        } catch (ConditionTimeoutException ex) {
+            throw new DockerComposeException("Timed out while waiting for cluster to be healthy.", ex);
+        } catch (Exception ex) {
+            throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
+        }
+
+        log.debug("Service " + serviceName + " appears to be healthy");
     }
 
     @Override
@@ -125,8 +165,10 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     private boolean containersHealthyOrRunning() throws DockerException, InterruptedException {
-        List<ContainerId> containerIds = ps();
+        return containersHealthyOrRunning(ps());
+    }
 
+    private boolean containersHealthyOrRunning(List<ContainerId> containerIds) throws DockerException, InterruptedException {
         for (ContainerId id : containerIds) {
             ContainerInfo info = dockerClient.inspectContainer(id.toString());
             String status = info.state().status();

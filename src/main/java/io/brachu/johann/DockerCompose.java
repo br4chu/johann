@@ -16,13 +16,21 @@ public interface DockerCompose {
 
     boolean isUp();
 
-    ContainerPort port(String containerName, int privatePort);
+    ContainerPort port(String serviceName, int privatePort);
 
-    ContainerPort port(String containerName, Protocol protocol, int privatePort);
+    ContainerPort port(String serviceName, Protocol protocol, int privatePort);
 
     List<ContainerId> ps();
 
+    List<ContainerId> ps(String serviceName);
+
     void waitForCluster(long time, TimeUnit unit);
+
+    void start(String serviceName);
+
+    void stop(String serviceName);
+
+    void waitForService(String serviceName, long time, TimeUnit unit);
 
     String getProjectName();
 

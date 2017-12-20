@@ -1,3 +1,11 @@
+# 0.3.0
+
+New operations:
+
+* `stop` - stops a single service within a cluster.
+* `start` - starts previously stopped service.
+* `waitForService` - waits for a single service to be healthy or running.
+
 # 0.2.0
 
 * More meaningful error messages.

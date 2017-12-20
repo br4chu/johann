@@ -83,6 +83,19 @@ compose.kill();
 
 Calling `kill` method is equivalent to executing `docker-compose kill` command.
 
+#### Stopping a single service within compose cluster
+
+```java
+compose.stop("postgresql");
+```
+
+#### Starting previously stopped service
+
+```java
+compose.start("postgresql");
+compose.waitForService("postgresql", 1, TimeUnit.MINUTES);
+```
+
 #### Passing environment variables to docker-compose
 
 ```java

@@ -31,6 +31,8 @@ class DockerComposeCliExecutor {
     private static final String[] KILL_COMMAND = { "kill" };
     private static final String[] PORT_COMMAND = { "port" };
     private static final String[] PS_COMMAND = { "ps", "-q" };
+    private static final String[] START_COMMAND = { "start" };
+    private static final String[] STOP_COMMAND = { "stop" };
 
     private final String projectName;
     private final String composeFileContent;
@@ -40,6 +42,8 @@ class DockerComposeCliExecutor {
     private final String[] killCmd;
     private final String[] portCmd;
     private final String[] psCmd;
+    private final String[] startCmd;
+    private final String[] stopCmd;
 
     private final String[] env;
 
@@ -54,6 +58,8 @@ class DockerComposeCliExecutor {
         killCmd = concat(cmdPrefix, KILL_COMMAND);
         portCmd = concat(cmdPrefix, PORT_COMMAND);
         psCmd = concat(cmdPrefix, PS_COMMAND);
+        startCmd = concat(cmdPrefix, START_COMMAND);
+        stopCmd = concat(cmdPrefix, STOP_COMMAND);
 
         this.env = mapToEnvArray(env);
     }
@@ -79,14 +85,14 @@ class DockerComposeCliExecutor {
         log.debug("Cluster killed");
     }
 
-    public PortBinding binding(String containerName, Protocol protocol, int privatePort) {
-        String[] params = { "--protocol", protocol.toString(), containerName, String.valueOf(privatePort) };
+    public PortBinding binding(String serviceName, Protocol protocol, int privatePort) {
+        String[] params = { "--protocol", protocol.toString(), serviceName, String.valueOf(privatePort) };
         String binding = exec(concat(portCmd, params));
 
         if (StringUtils.isNotBlank(binding)) {
             return new PortBinding(binding);
         } else {
-            throw new DockerComposeException("No host port is bound to '" + containerName + "' container's " + privatePort + " " + protocol.toString()
+            throw new DockerComposeException("No host port is bound to '" + serviceName + "' container's " + privatePort + " " + protocol.toString()
                     + " port.");
         }
     }
@@ -94,6 +100,26 @@ class DockerComposeCliExecutor {
     public List<ContainerId> ps() {
         String[] ids = exec(psCmd).split(System.lineSeparator());
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
+    }
+
+    public List<ContainerId> ps(String serviceName) {
+        String[] params = { serviceName };
+        String[] ids = exec(concat(psCmd, params)).split(System.lineSeparator());
+        return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
+    }
+
+    public void start(String serviceName) {
+        log.debug("Starting " + serviceName + " service");
+        String[] params = { serviceName };
+        exec(concat(startCmd, params));
+        log.debug("Started " + serviceName + " service");
+    }
+
+    public void stop(String serviceName) {
+        log.debug("Stopping " + serviceName + " service");
+        String[] params = { serviceName };
+        exec(concat(stopCmd, params));
+        log.debug("Stopped " + serviceName + " service");
     }
 
     private String exec(String[] cmd) {

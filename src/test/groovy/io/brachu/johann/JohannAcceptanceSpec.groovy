@@ -148,7 +148,7 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
-    def "Timeout should result in a meaningful exception"() {
+    def "timeout should result in a meaningful exception"() {
         when:
         dockerCompose.up()
         dockerCompose.waitForCluster(1, TimeUnit.SECONDS)
@@ -160,6 +160,56 @@ class JohannAcceptanceSpec extends Specification {
         if (dockerCompose.isUp()) {
             dockerCompose.down()
         }
+    }
+
+    def "should stop a single service"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stop('rabbitmq')
+        dockerCompose.port('rabbitmq', 5672)
+
+        then:
+        thrown DockerComposeException
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should stop and start a single service"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stop('rabbitmq')
+        dockerCompose.start('rabbitmq')
+        dockerCompose.waitForService('rabbitmq', 1, TimeUnit.MINUTES)
+        def containerPort = dockerCompose.port('rabbitmq', 15672)
+
+        then:
+        containerPort.port == 1337
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "cluster should be up even if all services are stopped"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stop('rabbitmq')
+        dockerCompose.stop('postgresql')
+
+        then:
+        dockerCompose.isUp()
+
+        cleanup:
+        dockerCompose.down()
     }
 
 }
