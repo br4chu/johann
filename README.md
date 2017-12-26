@@ -155,12 +155,38 @@ or pass docker-compose-maven-plugin's system property manually to forked process
 </plugin>
 ```
 
-#### Retrieving host port of a container
+#### Retrieving container's IP address
 
-Assuming your docker-compose.yml file looks something like this:
+Assuming following docker-compose.yml file:
 
 ```yaml
-version: '2.1'
+version: '2.3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.6.10-alpine
+    ports:
+      - "5672"
+```
+
+You can retrieve container's IP address for rabbitmq service as follows:
+
+```java
+String ip = compose.ip("rabbitmq");
+```
+
+If a container is bound to multiple networks, you can pass the network name as a second argument to the `ip` method as follows:
+
+```java
+String ip = compose.ip("rabbitmq", "my_custom_network");
+```
+
+#### Retrieving host port of a container
+
+Assuming following docker-compose.yml file:
+
+```yaml
+version: '2.3'
 
 services:
   rabbitmq:

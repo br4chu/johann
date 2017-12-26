@@ -131,6 +131,7 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.projectName == expectedProjectName
 
         cleanup:
+        System.clearProperty('maven.dockerCompose.project')
         dockerCompose.down()
     }
 
@@ -207,6 +208,19 @@ class JohannAcceptanceSpec extends Specification {
 
         then:
         dockerCompose.isUp()
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should be able to retrieve container ip"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        expect:
+        dockerCompose.ip('rabbitmq') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+        dockerCompose.ip('postgresql') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
 
         cleanup:
         dockerCompose.down()

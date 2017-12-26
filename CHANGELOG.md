@@ -1,3 +1,10 @@
+# 0.4.0
+
+New operation:
+
+* `ip` - retrieves container IP address for a service within specified network. If network is left unspecified, an IP address from default network will be
+retrieved.
+
 # 0.3.0
 
 New operations:

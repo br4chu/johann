@@ -9,6 +9,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.AttachedNetwork;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.ContainerState;
 import io.brachu.johann.ContainerId;
@@ -29,11 +30,12 @@ public class DockerComposeCli implements DockerCompose {
 
     private static final Logger log = LoggerFactory.getLogger(DockerComposeCli.class);
 
+    private final String projectName;
     private final DockerComposeCliExecutor composeExecutor;
     private DockerClient dockerClient;
 
     DockerComposeCli(String executablePath, File file, ProjectNameProvider projectNameProvider, Map<String, String> env) {
-        String projectName = projectNameProvider.provide();
+        projectName = projectNameProvider.provide();
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
 
         if (isUp()) {
@@ -67,6 +69,32 @@ public class DockerComposeCli implements DockerCompose {
     @Override
     public boolean isUp() {
         return !composeExecutor.ps().isEmpty();
+    }
+
+    @Override
+    public String ip(String serviceName) {
+        return ip(serviceName, projectName.toLowerCase() + "_default");
+    }
+
+    @Override
+    public String ip(String serviceName, String networkName) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        List<ContainerId> containerIds = ps(serviceName);
+        Validate.isTrue(!containerIds.isEmpty(), serviceName + " service is not present in the cluster");
+
+        ContainerId containerId = containerIds.get(0);
+        Map<String, AttachedNetwork> networks;
+        try {
+            networks = dockerClient.inspectContainer(containerId.toString()).networkSettings().networks();
+        } catch (DockerException | InterruptedException e) {
+            throw new DockerComposeException("Unexpected exception while inspecting container with id " + containerId + ".", e);
+        }
+
+        if (networks != null) {
+            return networks.get(networkName).ipAddress();
+        } else {
+            throw new DockerComposeException("Unexpected lack of networks for container with id " + containerId + ".");
+        }
     }
 
     @Override
