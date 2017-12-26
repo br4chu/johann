@@ -95,8 +95,8 @@ public class DockerComposeCli implements DockerCompose {
             if (network != null) {
                 return network.ipAddress();
             } else {
-                throw new DockerComposeException("Service " + serviceName + "is not bound to " + networkName + " network. " +
-                        "Have you provided a correct network name?");
+                throw new DockerComposeException("Service " + serviceName + "is not bound to " + networkName + " network. "
+                        + "Have you provided a correct network name?");
             }
         } else {
             throw new DockerComposeException("Unexpected lack of networks for container with id " + containerId + ".");
