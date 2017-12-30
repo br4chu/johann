@@ -124,7 +124,9 @@ As of version 0.2.0, Johann will first try to detect if it's being run in the co
 [docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin) before generating random project name. If it is, it will reuse the project
 name set during the `up` goal of docker-compose-maven-plugin. If it does not, only then it will generate a random project name.
 
-Internally this works by trying to read the value of `maven.dockerCompose.project` system property that is set during `up` goal of docker-compose-maven-plugin.
+Internally this works reading the value of `maven.dockerCompose.project` system property that is set during `up` goal of docker-compose-maven-plugin.
+
+(The following is no longer true for docker-compose-maven-plugin 0.2.0 or newer. You can use maven-failsafe-plugin the standard way and it will just work.)
 
 Please note that it will not work by default due to how maven-failsafe-plugin executes its test suite.
 In order to make this integration work, you will need to either disable forking in maven-failesafe-plugin with `forkCount` property:
