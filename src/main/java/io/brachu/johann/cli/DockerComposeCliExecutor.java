@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.brachu.johann.ContainerId;
+import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.cli.exception.ExecutionTimedOutException;
@@ -73,9 +74,9 @@ class DockerComposeCliExecutor {
         exec(upCmd);
     }
 
-    public void down() {
+    public void down(DownConfig config) {
         log.debug("Shutting down cluster");
-        exec(downCmd);
+        exec(concat(downCmd, config.toCmd()));
         log.debug("Cluster shut down");
     }
 

@@ -15,6 +15,7 @@ import com.spotify.docker.client.messages.ContainerState;
 import io.brachu.johann.ContainerId;
 import io.brachu.johann.ContainerPort;
 import io.brachu.johann.DockerCompose;
+import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.exception.DockerClientException;
@@ -53,11 +54,16 @@ public class DockerComposeCli implements DockerCompose {
 
     @Override
     public void down() {
+        down(DownConfig.defaults());
+    }
+
+    @Override
+    public void down(DownConfig config) {
         Validate.isTrue(isUp(), "Cluster is not up");
 
         dockerClient.close();
         dockerClient = null;
-        composeExecutor.down();
+        composeExecutor.down(config);
     }
 
     @Override

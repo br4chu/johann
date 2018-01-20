@@ -12,6 +12,8 @@ public interface DockerCompose {
 
     void down();
 
+    void down(DownConfig config);
+
     void kill();
 
     boolean isUp();

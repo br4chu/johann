@@ -11,19 +11,19 @@ Maven dependency:
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 ```groovy
-compile 'io.brachu:johann:0.4.0'
+compile 'io.brachu:johann:0.5.0'
 ```
 
 ## Requirements
 
-* Docker Engine 1.12+ (because of health checks)
-* Docker Compose 1.14+ (because of `-f -` option)
+* Docker Engine 17.06+
+* Docker Compose 1.18+
 
 ## Example usage
 
@@ -62,8 +62,8 @@ compose.waitForCluster(1, TimeUnit.MINUTES);
 
 Calling `up` method is equivalent to executing `docker-compose up -d` command.
 
-`waitForCluster` method waits for all containers within a cluster to be either healthy or running (if they have no health check).
-For most consistent results, all your containers should implement health checks.
+`waitForCluster` method waits for all containers within a cluster to be either healthy or, if they have no health check, running.
+For most consistent results in integration tests, all your containers should implement health checks.
 
 You can read more about container health checks [here](https://docs.docker.com/engine/reference/builder/#healthcheck).
 
@@ -73,7 +73,27 @@ You can read more about container health checks [here](https://docs.docker.com/e
 compose.down();
 ```
 
-Calling `down` method is equivalent to executing `docker-compose down` command.
+Calling `down` method is equivalent to executing `docker-compose down -v` command.
+
+#### Customizing cluster shutdown
+
+You can customize behaviour of `down` method by supplying it with a `DownConfig` object.
+
+`DownConfig` object has following properties:
+
+| Property         | CLI equivalent     | default value
+| ---------------- | ------------------ | -------------------------------------
+| `removeImages`   | `--rmi`            | `NONE`
+| `removeVolumes`  | `-v`               | `true`
+| `removeOrphans`  | `--remove-orphans` | `false`
+| `timeoutSeconds` | `-t`               | `10`
+
+Example usage:
+
+```java
+DownConfig config = DownConfig.defaults().withRemoveVolumes(false);
+compose.down(config);
+```
 
 #### Killing compose cluster (may leave garbage containers)
 
@@ -128,8 +148,8 @@ Internally this works reading the value of `maven.dockerCompose.project` system 
 
 (The following is no longer true for docker-compose-maven-plugin 0.2.0 or newer. You can use maven-failsafe-plugin the standard way and it will just work.)
 
-Please note that it will not work by default due to how maven-failsafe-plugin executes its test suite.
-In order to make this integration work, you will need to either disable forking in maven-failesafe-plugin with `forkCount` property:
+~~Please note that it will not work by default due to how maven-failsafe-plugin executes its test suite.
+In order to make this integration work, you will need to either disable forking in maven-failesafe-plugin with `forkCount` property:~~
 
 ```xml
 <plugin>
@@ -142,7 +162,7 @@ In order to make this integration work, you will need to either disable forking 
 </plugin>
 ```
 
-or pass docker-compose-maven-plugin's system property manually to forked process:
+~~or pass docker-compose-maven-plugin's system property manually to forked process:~~
 
 ```xml
 <plugin>
@@ -197,7 +217,7 @@ services:
       - "5672"
 ```
 
-You can retrieve a host port bound to container's 5672 port by invoking Johann's `port` method as follows:
+You can retrieve a host port bound to container's 5672 port by invoking Johann's `port` method:
 
 ```java
 ContainerPort containerPort = compose.port("rabbitmq", 5672);
@@ -219,5 +239,6 @@ You can read more about these variables [here](https://docs.docker.com/compose/p
 
 ## Running test suite
 
-In order to run the test suite properly, your local machine must have docker and docker-compose installed.
+In order to run the test suite properly, your local machine must have docker and docker-compose installed. Also, assuming Linux OS, user running the
+tests must be in the `docker` group.
 Version requirements are posted at the top of this README.
