@@ -1,3 +1,7 @@
+# 0.5.1
+
+Explicitly exluded shaded jersey dependencies from docker-client dependency. Dependency clash was causing problems in downstream projects.
+
 # 0.5.0
 
 Renamed `ip` operation to `containerIp` because of ambiguity.
