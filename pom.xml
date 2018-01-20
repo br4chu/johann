@@ -5,7 +5,7 @@
 
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Johann is a simple Java library that communicates with docker-compose CLI.</description>
@@ -35,7 +35,7 @@
         <url>https://github.com/br4chu/johann</url>
         <connection>scm:git:git@github.com:br4chu/johann.git</connection>
         <developerConnection>scm:git:git@github.com:br4chu/johann.git</developerConnection>
-        <tag>0.5.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
