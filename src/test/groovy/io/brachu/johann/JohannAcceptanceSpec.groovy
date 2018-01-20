@@ -219,8 +219,8 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
 
         expect:
-        dockerCompose.ip('rabbitmq') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
-        dockerCompose.ip('postgresql') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+        dockerCompose.containerIp('rabbitmq') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+        dockerCompose.containerIp('postgresql') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
 
         cleanup:
         dockerCompose.down()

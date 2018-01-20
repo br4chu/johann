@@ -191,16 +191,16 @@ services:
       - "5672"
 ```
 
-You can retrieve container's IP address for rabbitmq service as follows:
+You can easily retrieve container's IP address for rabbitmq service:
 
 ```java
-String ip = compose.ip("rabbitmq");
+String ip = compose.containerIp("rabbitmq");
 ```
 
-If a container is bound to multiple networks, you can pass the network name as a second argument to the `ip` method as follows:
+If a container is bound to multiple networks, you can pass the network name as a second argument to the `ip` method:
 
 ```java
-String ip = compose.ip("rabbitmq", "my_custom_network");
+String ip = compose.containerIp("rabbitmq", "my_custom_network");
 ```
 
 #### Retrieving host port of a container

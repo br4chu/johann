@@ -18,9 +18,9 @@ public interface DockerCompose {
 
     boolean isUp();
 
-    String ip(String serviceName);
+    String containerIp(String serviceName);
 
-    String ip(String serviceName, String networkName);
+    String containerIp(String serviceName, String networkName);
 
     ContainerPort port(String serviceName, int privatePort);
 

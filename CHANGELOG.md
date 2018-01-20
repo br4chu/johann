@@ -1,8 +1,16 @@
+# 0.5.0
+
+Renamed `ip` operation to `containerIp` because of ambiguity.
+
+Added overloaded `down` method which accepts a `DownConfig` object.````
+
+Used shaded version of Spotify's Docker Client. May reduce dependency problems in downstream projects.
+
 # 0.4.0
 
 New operation:
 
-* `ip` - retrieves container IP address for a service within specified network. If network is left unspecified, an IP address from default network will be
+* `ip` - retrieves container IP address for`` a service within specified network. If network is left unspecified, an IP address from default network will be
 retrieved.
 
 # 0.3.0

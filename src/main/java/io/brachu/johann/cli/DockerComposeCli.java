@@ -78,12 +78,12 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     @Override
-    public String ip(String serviceName) {
-        return ip(serviceName, projectName.toLowerCase() + "_default");
+    public String containerIp(String serviceName) {
+        return containerIp(serviceName, projectName.toLowerCase() + "_default");
     }
 
     @Override
-    public String ip(String serviceName, String networkName) {
+    public String containerIp(String serviceName, String networkName) {
         Validate.isTrue(isUp(), "Cluster is not up");
         List<ContainerId> containerIds = ps(serviceName);
         Validate.isTrue(!containerIds.isEmpty(), serviceName + " service is not present in the cluster");
