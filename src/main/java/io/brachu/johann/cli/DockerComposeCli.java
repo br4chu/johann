@@ -63,6 +63,9 @@ public class DockerComposeCli implements DockerCompose {
 
         dockerClient.close();
         dockerClient = null;
+        if (config.isKillBeforeDown()) {
+            composeExecutor.kill();
+        }
         composeExecutor.down(config);
     }
 
