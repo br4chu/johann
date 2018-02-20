@@ -28,7 +28,7 @@ final class CliRunner {
         Process process = Runtime.getRuntime().exec(cmd, env.length > 0 ? env : null);
         onProcessStart.accept(process);
 
-        if (process.waitFor(1, TimeUnit.MINUTES)) {
+        if (process.waitFor(5, TimeUnit.MINUTES)) {
             int exitCode = process.exitValue();
             if (exitCode == 0) {
                 return readInput(process.getInputStream());
