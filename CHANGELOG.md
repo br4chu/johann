@@ -1,3 +1,15 @@
+# 0.6.0
+
+Increased timeout on all CLI operations from 1 minute to 5 minutes.
+
+Updated dependencies to newest stable versions, including docker-client.
+
+Before generating random project name, Johann will try to read value of COMPOSE_PROJECT_NAME environment variable.  
+The priority of implicit project name creation is now:
+1. `maven.dockerCompose.project` system property
+2. `COMPOSE_PROJECT_NAME` environment variable
+3. Random ASCII string
+
 # 0.5.1
 
 Explicitly exluded shaded jersey dependencies from docker-client dependency. Dependency clash was causing problems in downstream projects.
@@ -6,7 +18,7 @@ Explicitly exluded shaded jersey dependencies from docker-client dependency. Dep
 
 Renamed `ip` operation to `containerIp` because of ambiguity.
 
-Added overloaded `down` method which accepts a `DownConfig` object.````
+Added overloaded `down` method which accepts a `DownConfig` object.
 
 Used shaded version of Spotify's Docker Client. May reduce dependency problems in downstream projects.
 
