@@ -58,10 +58,6 @@ public final class DownConfig {
         return new DownConfig(killBeforeDown, removeImages, removeVolumes, removeOrphans, timeoutSeconds);
     }
 
-    public boolean isKillBeforeDown() {
-        return killBeforeDown;
-    }
-
     public String[] toCmd() {
         List<String> cliString = new ArrayList<>();
 

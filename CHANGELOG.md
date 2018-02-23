@@ -1,6 +1,12 @@
+# 0.7.0
+
+Removed kill-before-down option. Users should call `kill()` method manually before calling `down()` if they want to achieve the same result.
+
 # 0.6.0
 
 Increased timeout on all CLI operations from 1 minute to 5 minutes.
+
+Added kill-before-down option to DownConfig.
 
 Updated dependencies to newest stable versions, including docker-client.
 

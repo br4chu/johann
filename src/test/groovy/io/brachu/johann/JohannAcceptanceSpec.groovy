@@ -226,16 +226,4 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
-    def "should kill cluster before down command if configured"() {
-        given:
-        dockerCompose.up()
-        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
-
-        when:
-        dockerCompose.down(DownConfig.defaults().withKillBeforeDown())
-
-        then:
-        !dockerCompose.isUp()
-    }
-
 }
