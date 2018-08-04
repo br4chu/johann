@@ -1,3 +1,12 @@
+# 0.8.0
+
+Certain docker-compose operations like up, down, starting and stopping of a single service will be more verbose to tell end-user that something is
+actually happening behind scenes.
+
+Added "Automatic-Module-Name" entry to MANIFEST.MF for a better compatiblity with JDK9+ downstream projects.
+
+Added javax.activation dependency to work around exception in JDK9+ downstream projects.
+
 # 0.7.0
 
 Removed kill-before-down option. Users should call `kill()` method manually before calling `down()` if they want to achieve the same result.
@@ -18,7 +27,7 @@ The priority of implicit project name creation is now:
 
 # 0.5.1
 
-Explicitly exluded shaded jersey dependencies from docker-client dependency. Dependency clash was causing problems in downstream projects.
+Explicitly excluded shaded jersey dependencies from docker-client dependency. Dependency clash was causing problems in downstream projects.
 
 # 0.5.0
 
