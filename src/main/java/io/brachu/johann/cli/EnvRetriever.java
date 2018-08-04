@@ -1,20 +1,20 @@
 package io.brachu.johann.cli;
 
-class EnvRetriever {
+final class EnvRetriever {
 
-    public static final String DOCKER_HOST = "DOCKER_HOST";
-    public static final String DOCKER_TLS_VERIFY = "DOCKER_TLS_VERIFY";
-    public static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
+    static final String DOCKER_HOST = "DOCKER_HOST";
+    static final String DOCKER_TLS_VERIFY = "DOCKER_TLS_VERIFY";
+    static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
 
-    public String retrieveDockerHost() {
+    String retrieveDockerHost() {
         return fromEnv(DOCKER_HOST);
     }
 
-    public String retrieveTlsVerify() {
+    String retrieveTlsVerify() {
         return fromEnv(DOCKER_TLS_VERIFY);
     }
 
-    public String retrieveCertPath() {
+    String retrieveCertPath() {
         return fromEnv(DOCKER_CERT_PATH);
     }
 
