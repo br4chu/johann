@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import io.brachu.johann.ContainerId;
 import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
@@ -23,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DockerComposeCliExecutor {
+final class DockerComposeCliExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(DockerComposeCliExecutor.class);
 
@@ -46,7 +47,7 @@ class DockerComposeCliExecutor {
     private final String[] startCmd;
     private final String[] stopCmd;
 
-    private final String[] env;
+    private final Map<String, String> env;
 
     DockerComposeCliExecutor(String executablePath, File composeFile, String projectName, Map<String, String> env) {
         String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
@@ -62,33 +63,33 @@ class DockerComposeCliExecutor {
         startCmd = concat(cmdPrefix, START_COMMAND);
         stopCmd = concat(cmdPrefix, STOP_COMMAND);
 
-        this.env = mapToEnvArray(env);
+        this.env = ImmutableMap.copyOf(env);
     }
 
-    public String getProjectName() {
+    String getProjectName() {
         return projectName;
     }
 
-    public void up() {
+    void up() {
         log.debug("Starting cluster");
-        exec(upCmd);
+        exec(upCmd, true);
     }
 
-    public void down(DownConfig config) {
+    void down(DownConfig config) {
         log.debug("Shutting down cluster");
-        exec(concat(downCmd, config.toCmd()));
+        exec(concat(downCmd, config.toCmd()), true);
         log.debug("Cluster shut down");
     }
 
-    public void kill() {
+    void kill() {
         log.debug("Killing cluster");
-        exec(killCmd);
+        exec(killCmd, true);
         log.debug("Cluster killed");
     }
 
-    public PortBinding binding(String serviceName, Protocol protocol, int privatePort) {
+    PortBinding binding(String serviceName, Protocol protocol, int privatePort) {
         String[] params = { "--protocol", protocol.toString(), serviceName, String.valueOf(privatePort) };
-        String binding = exec(concat(portCmd, params));
+        String binding = exec(concat(portCmd, params), false);
 
         if (StringUtils.isNotBlank(binding)) {
             return new PortBinding(binding);
@@ -98,36 +99,36 @@ class DockerComposeCliExecutor {
         }
     }
 
-    public List<ContainerId> ps() {
-        String[] ids = exec(psCmd).split(System.lineSeparator());
+    List<ContainerId> ps() {
+        String[] ids = exec(psCmd, false).split(System.lineSeparator());
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
-    public List<ContainerId> ps(String serviceName) {
+    List<ContainerId> ps(String serviceName) {
         String[] params = { serviceName };
-        String[] ids = exec(concat(psCmd, params)).split(System.lineSeparator());
+        String[] ids = exec(concat(psCmd, params), false).split(System.lineSeparator());
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
-    public void start(String serviceName) {
+    void start(String serviceName) {
         log.debug("Starting " + serviceName + " service");
         String[] params = { serviceName };
-        exec(concat(startCmd, params));
+        exec(concat(startCmd, params), true);
         log.debug("Started " + serviceName + " service");
     }
 
-    public void stop(String serviceName) {
+    void stop(String serviceName) {
         log.debug("Stopping " + serviceName + " service");
         String[] params = { serviceName };
-        exec(concat(stopCmd, params));
+        exec(concat(stopCmd, params), true);
         log.debug("Stopped " + serviceName + " service");
     }
 
-    private String exec(String[] cmd) {
-        String cmdJoined = Arrays.stream(cmd).collect(Collectors.joining(" "));
+    private String exec(String[] cmd, boolean verbose) {
+        String cmdJoined = String.join(" ", cmd);
 
         try {
-            return CliRunner.exec(cmd, env, this::pipeComposeFile);
+            return CliRunner.exec(cmd, env, this::pipeComposeFile, verbose);
         } catch (IOException e) {
             throw new DockerComposeException("Unexpected I/O exception while executing '" + cmdJoined + "'.", e);
         } catch (InterruptedException e) {
@@ -148,8 +149,8 @@ class DockerComposeCliExecutor {
         }
     }
 
-    private void pipeComposeFile(Process process) {
-        OutputStream output = process.getOutputStream();
+    private void pipeComposeFile(CliProcess process) {
+        OutputStream output = process.outputStream();
         try {
             IOUtils.write(composeFileContent, output, StandardCharsets.UTF_8);
             output.flush();
@@ -157,10 +158,6 @@ class DockerComposeCliExecutor {
         } catch (IOException e) {
             throw new DockerComposeException("Unexpected exception while piping compose file contents to docker-compose CLI.", e);
         }
-    }
-
-    private String[] mapToEnvArray(Map<String, String> env) {
-        return env.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(String[]::new);
     }
 
     private String[] concat(String[] first, String[] second) {

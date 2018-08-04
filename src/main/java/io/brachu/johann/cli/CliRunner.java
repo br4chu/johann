@@ -1,16 +1,13 @@
 package io.brachu.johann.cli;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import io.brachu.johann.cli.exception.ExecutionTimedOutException;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,19 +18,19 @@ final class CliRunner {
     private CliRunner() {
     }
 
-    static String exec(String[] cmd, String[] env, Consumer<Process> onProcessStart)
+    static String exec(String[] cmd, Map<String, String> env, Consumer<CliProcess> onProcessStart, boolean verbose)
             throws IOException, InterruptedException, NonZeroExitCodeException, ExecutionTimedOutException {
 
         log(cmd, env);
-        Process process = Runtime.getRuntime().exec(cmd, env.length > 0 ? env : null);
+        CliProcess process = startProcess(cmd, env, verbose);
         onProcessStart.accept(process);
 
         if (process.waitFor(5, TimeUnit.MINUTES)) {
             int exitCode = process.exitValue();
             if (exitCode == 0) {
-                return readInput(process.getInputStream());
+                return process.standardOutput();
             } else {
-                String error = readInput(process.getErrorStream());
+                String error = process.errorOutput();
                 throw new NonZeroExitCodeException(exitCode, error);
             }
         } else {
@@ -42,14 +39,16 @@ final class CliRunner {
         }
     }
 
-    private static String readInput(InputStream input) throws IOException {
-        return IOUtils.toString(input, StandardCharsets.UTF_8);
+    private static CliProcess startProcess(String[] cmd, Map<String, String> env, boolean verbose) throws IOException {
+        ProcessBuilder bp = new ProcessBuilder(cmd);
+        bp.environment().putAll(env);
+        return new CliProcess(bp.start(), verbose);
     }
 
-    private static void log(String[] cmd, String[] env) {
+    private static void log(String[] cmd, Map<String, String> env) {
         if (log.isTraceEnabled()) {
-            log.trace("Running command: {}", Arrays.stream(cmd).collect(Collectors.joining(" ")));
-            log.trace("Env variables: {}", Arrays.stream(env).collect(Collectors.joining(" ")));
+            log.trace("Running command: {}", String.join(" ", cmd));
+            log.trace("Env variables: {}", env.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining(" ")));
         }
     }
 
