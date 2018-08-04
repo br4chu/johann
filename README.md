@@ -126,7 +126,7 @@ DockerCompose compose = DockerCompose.builder()
     .build();
 ```
 
-#### Assinging project name to your compose cluster
+#### Assigning project name to your compose cluster
 
 By default, Johann uses implicitly generated project name and passes it to `docker-compose` command via `-p` switch.
 You can override this behaviour by passing your own project name to the builder:
@@ -141,7 +141,7 @@ DockerCompose compose = DockerCompose.builder()
 #### Implicit project name generation
 
 When running `docker-compose up` without `-p` switch, your compose cluster will be assigned a project name equal to the name of directory containing your
-`docker-compose.yml` file. This may lead to problems when running multiple clusters at once is necessary. Johann tries to handle this case by always passing
+`docker-compose.yml` file. This may lead to problems when running multiple clusters at once. Johann tries to handle this case by always passing
 a project name to `docker-compose` CLI. This project name can be given explicitly via builder pattern or can be generated implicitly.
 
 The sources of implicit project name are given below, ordered by priority:
