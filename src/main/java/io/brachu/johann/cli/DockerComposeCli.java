@@ -175,7 +175,7 @@ public class DockerComposeCli implements DockerCompose {
         Validate.isTrue(unit.ordinal() >= TimeUnit.SECONDS.ordinal(), "Time unit cannot be smaller than SECONDS");
         Validate.isTrue(time > 0, "Time to wait must be positive");
 
-        log.debug("Waiting for service " + serviceName + " to be healthly");
+        log.debug("Waiting for service " + serviceName + " to be healthy");
 
         try {
             Awaitility.await()
