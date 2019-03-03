@@ -60,7 +60,6 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- Dependencies -->
-        <activation.version>1.1.1</activation.version>
         <awaitility.version>3.1.6</awaitility.version>
         <commons-io.version>2.6</commons-io.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
@@ -126,6 +125,7 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -179,13 +179,6 @@
                     <artifactId>jersey-entity-filtering</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <!-- JDK9+ fix, needed by jersey which is used by docker-client -->
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>${activation.version}</version>
         </dependency>
 
         <dependency>

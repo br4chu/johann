@@ -2,8 +2,13 @@
 
 Updated dependencies and maven plugins to latest stable releases.
 
+Removed javax.activation dependency as it is now provided in the Spotify's docker-client.
+
+Marked jsr305 dependency as provided.
+
 No new features. Latest (0.8.0) version has been battle tested in multiple projects with great success and will therefore become the first stable release.
-No breaking changes are planned in 1.x line.
+
+All 1.x versions will have no breaking changes.
 
 # 0.8.0
 
