@@ -212,6 +212,5 @@ You can read more about these variables [here](https://docs.docker.com/compose/p
 
 ## Running test suite
 
-In order to run the test suite properly, your local machine must have docker and docker-compose installed. Also, assuming Linux OS, user running the
-tests must be in the `docker` group.
-Version requirements are posted at the top of this README.
+Running tests located in this repository requires you to install docker and docker-compose on your local machine. Also, assuming you are running Linux distro,
+user running the tests must be added to the `docker` group. Version requirements are posted at the top of this README.

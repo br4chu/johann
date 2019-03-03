@@ -3,9 +3,9 @@
 Certain docker-compose operations like up, down, starting and stopping of a single service will be more verbose to tell end-user that something is
 actually happening behind scenes.
 
-Added "Automatic-Module-Name" entry to MANIFEST.MF for a better compatiblity with JDK9+ downstream projects.
+Added "Automatic-Module-Name" entry to MANIFEST.MF for a better compatibility with JDK9+ downstream projects.
 
-Added javax.activation dependency to work around exception in JDK9+ downstream projects.
+Added javax.activation dependency to work around exceptions in docker-client dependency.
 
 # 0.7.0
 
