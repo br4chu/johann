@@ -11,17 +11,18 @@ Maven dependency:
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>0.8.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 ```groovy
-compile 'io.brachu:johann:0.8.0'
+compile 'io.brachu:johann:1.0.0'
 ```
 
 ## Requirements
 
+* JDK8+ environment
 * Docker Engine 17.06+
 * Docker Compose 1.18+
 

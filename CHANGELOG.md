@@ -1,3 +1,10 @@
+# 1.0.0
+
+Updated dependencies and maven plugins to latest stable releases.
+
+No new features. Latest (0.8.0) version has been battle tested in multiple projects with great success and will therefore become the first stable release.
+No breaking changes are planned in 1.x line.
+
 # 0.8.0
 
 Certain docker-compose operations like up, down, starting and stopping of a single service will be more verbose to tell end-user that something is
