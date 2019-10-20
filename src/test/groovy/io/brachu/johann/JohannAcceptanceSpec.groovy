@@ -3,6 +3,7 @@ package io.brachu.johann
 import java.util.concurrent.TimeUnit
 
 import io.brachu.johann.exception.DockerComposeException
+import io.brachu.johann.exception.JohannTimeoutException
 import spock.lang.Specification
 
 class JohannAcceptanceSpec extends Specification {
@@ -155,7 +156,7 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.waitForCluster(1, TimeUnit.SECONDS)
 
         then:
-        thrown DockerComposeException
+        thrown JohannTimeoutException
 
         cleanup:
         if (dockerCompose.isUp()) {

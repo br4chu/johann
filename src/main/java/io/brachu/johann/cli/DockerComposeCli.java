@@ -20,6 +20,7 @@ import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.exception.DockerClientException;
 import io.brachu.johann.exception.DockerComposeException;
+import io.brachu.johann.exception.JohannTimeoutException;
 import io.brachu.johann.project.ProjectNameProvider;
 import org.apache.commons.lang3.Validate;
 import org.awaitility.Awaitility;
@@ -148,7 +149,7 @@ public class DockerComposeCli implements DockerCompose {
                     .until(this::containersHealthyOrRunning);
         } catch (ConditionTimeoutException ex) {
             down();
-            throw new DockerComposeException("Timed out while waiting for cluster to be healthy.", ex);
+            throw new JohannTimeoutException("Timed out while waiting for cluster to be healthy.", time, unit, ex);
         } catch (Exception ex) {
             down();
             throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
@@ -183,7 +184,7 @@ public class DockerComposeCli implements DockerCompose {
                     .atMost(time, unit)
                     .until(() -> containersHealthyOrRunning(ps(serviceName)));
         } catch (ConditionTimeoutException ex) {
-            throw new DockerComposeException("Timed out while waiting for cluster to be healthy.", ex);
+            throw new JohannTimeoutException("Timed out while waiting for cluster to be healthy.", time, unit, ex);
         } catch (Exception ex) {
             throw new DockerComposeException("Unexpected exception while waiting for cluster to be healthy.", ex);
         }

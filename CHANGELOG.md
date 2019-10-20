@@ -1,3 +1,9 @@
+# 1.0.1
+
+`waitForCluster` and `waitForService` methods will now throw `JohannTimeoutException` instead of `DockerComposeException` when a timeout occurs. This
+should allow library users to better handle such error. Previous exception was too generic and didn't help in distinguishing timeout error from some other,
+timeout-unrelated CLI error.
+
 # 1.0.0
 
 Updated dependencies and maven plugins to latest stable releases.
