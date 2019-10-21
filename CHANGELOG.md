@@ -1,3 +1,21 @@
+# 1.1.0
+
+`up()` method no longer throws an exception when a docker-compose cluster is already up. Only INFO level log is printed in such case.
+
+`down()` method and its overloaded variants no longer throw an exception when docker-compose cluster is already down. Only INFO level log is printed in such
+case.
+
+`DockerCompose` interface now extends `Closeable`. Users are advised to call `close()` method on their `DockerCompose` instance when they are done with it.
+This will release external resources (e.g. opened TCP connections) back to the operating system.
+
+Added new methods to the API:
+* varargs-flavoured `stop` method can stop multiple services at once
+* varargs-flavoured `start` method can start multiple services at once
+* `stopAll` method stops all services defined in a docker-compose file
+* `startAll` method starts all services defined in a docker-compose file
+
+Stopping an already stopped service has no effect. The same goes for starting already started service.
+
 # 1.0.1
 
 `waitForCluster` and `waitForService` methods will now throw `JohannTimeoutException` instead of `DockerComposeException` when a timeout occurs. This
