@@ -155,15 +155,39 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     @Override
+    public void startAll() {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.startAll();
+    }
+
+    @Override
     public void start(String serviceName) {
         Validate.isTrue(isUp(), "Cluster is not up");
         composeExecutor.start(serviceName);
     }
 
     @Override
+    public void start(String... serviceNames) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.start(serviceNames);
+    }
+
+    @Override
+    public void stopAll() {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.stopAll();
+    }
+
+    @Override
     public void stop(String serviceName) {
         Validate.isTrue(isUp(), "Cluster is not up");
         composeExecutor.stop(serviceName);
+    }
+
+    @Override
+    public void stop(String... serviceNames) {
+        Validate.isTrue(isUp(), "Cluster is not up");
+        composeExecutor.stop(serviceNames);
     }
 
     @Override

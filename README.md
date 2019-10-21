@@ -117,6 +117,23 @@ compose.start("postgresql");
 compose.waitForService("postgresql", 1, TimeUnit.MINUTES);
 ```
 
+#### Stopping and starting multiple services at once
+
+You can stop and start multiple services at once by using either varargs-flavoured `stop` & `start` methods. There are also `stopAll` & `startAll` methods
+available that can stop and start all services defined in your docker-compose file.
+
+```java
+// The order of services matters. Rabbitmq service will be stopped before postgresql.
+compose.stop("rabbitmq", "postgresql");
+// Postgresql will start before rabbitmq
+compose.start("postgresql", "rabbitmq");
+```
+
+```java
+compose.stopAll()
+compose.startAll()
+```
+
 #### Passing environment variables to docker-compose
 
 ```java

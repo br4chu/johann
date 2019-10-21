@@ -110,6 +110,12 @@ final class DockerComposeCliExecutor {
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
+    void startAll() {
+        log.debug("Starting all services");
+        exec(startCmd, true);
+        log.debug("Started all services");
+    }
+
     void start(String serviceName) {
         log.debug("Starting " + serviceName + " service");
         String[] params = { serviceName };
@@ -117,11 +123,31 @@ final class DockerComposeCliExecutor {
         log.debug("Started " + serviceName + " service");
     }
 
+    void start(String... serviceNames) {
+        String services = String.join(", ", serviceNames);
+        log.debug("Starting services: " + services);
+        exec(concat(startCmd, serviceNames), true);
+        log.debug("Started services: " + services);
+    }
+
+    void stopAll() {
+        log.debug("Stopping all services");
+        exec(stopCmd, true);
+        log.debug("Stopped all services");
+    }
+
     void stop(String serviceName) {
         log.debug("Stopping " + serviceName + " service");
         String[] params = { serviceName };
         exec(concat(stopCmd, params), true);
         log.debug("Stopped " + serviceName + " service");
+    }
+
+    void stop(String... serviceNames) {
+        String services = String.join(", ", serviceNames);
+        log.debug("Stopping services: " + services);
+        exec(concat(stopCmd, serviceNames), true);
+        log.debug("Stopped services: " + services);
     }
 
     private String exec(String[] cmd, boolean verbose) {

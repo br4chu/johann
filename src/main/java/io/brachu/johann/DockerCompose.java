@@ -33,9 +33,17 @@ public interface DockerCompose extends Closeable {
 
     void waitForCluster(long time, TimeUnit unit);
 
+    void startAll();
+
     void start(String serviceName);
 
+    void start(String... serviceNames);
+
+    void stopAll();
+
     void stop(String serviceName);
+
+    void stop(String... serviceNames);
 
     void waitForService(String serviceName, long time, TimeUnit unit);
 

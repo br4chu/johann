@@ -189,6 +189,42 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
+    def "should stop multiple services at once"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stop('rabbitmq', 'postgresql')
+
+        and:
+        dockerCompose.port('rabbitmq', 5672)
+
+        then:
+        thrown DockerComposeException
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should stop all services"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES);
+
+        when:
+        dockerCompose.stopAll()
+
+        and:
+        dockerCompose.port('rabbitmq', 5432)
+
+        then:
+        thrown DockerComposeException
+
+        cleanup:
+        dockerCompose.down()
+    }
+
     def "should stop and start a single service"() {
         given:
         dockerCompose.up()
@@ -198,6 +234,48 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.stop('rabbitmq')
         dockerCompose.start('rabbitmq')
         dockerCompose.waitForService('rabbitmq', 1, TimeUnit.MINUTES)
+
+        and:
+        def containerPort = dockerCompose.port('rabbitmq', 15672)
+
+        then:
+        containerPort.port == 1337
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should stop and start multiple services at once"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stop('rabbitmq', 'postgresql')
+        dockerCompose.start('rabbitmq', 'postgresql')
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        and:
+        def containerPort = dockerCompose.port('rabbitmq', 15672)
+
+        then:
+        containerPort.port == 1337
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should stop and start all services"() {
+        given:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        when:
+        dockerCompose.stopAll()
+        dockerCompose.startAll()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        and:
         def containerPort = dockerCompose.port('rabbitmq', 15672)
 
         then:
@@ -213,8 +291,7 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
 
         when:
-        dockerCompose.stop('rabbitmq')
-        dockerCompose.stop('postgresql')
+        dockerCompose.stopAll()
 
         then:
         dockerCompose.isUp()
