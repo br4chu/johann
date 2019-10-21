@@ -39,17 +39,14 @@ public class DockerComposeCli implements DockerCompose {
     DockerComposeCli(String executablePath, File file, ProjectNameProvider projectNameProvider, Map<String, String> env) {
         projectName = projectNameProvider.provide();
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
-
-        if (isUp()) {
-            dockerClient = createDockerClient();
-        }
+        dockerClient = createDockerClient();
     }
 
     @Override
     public void up() {
-        Validate.isTrue(!isUp(), "Cluster is already up");
-
-        dockerClient = createDockerClient();
+        if (isUp()) {
+            log.info("Executing 'up' command for a cluster that is already up.");
+        }
         composeExecutor.up();
     }
 
@@ -60,10 +57,9 @@ public class DockerComposeCli implements DockerCompose {
 
     @Override
     public void down(DownConfig config) {
-        Validate.isTrue(isUp(), "Cluster is not up");
-
-        dockerClient.close();
-        dockerClient = null;
+        if (!isUp()) {
+            log.info("Executing 'down' command for a cluster that is already down.");
+        }
         composeExecutor.down(config);
     }
 
@@ -195,6 +191,11 @@ public class DockerComposeCli implements DockerCompose {
     @Override
     public String getProjectName() {
         return composeExecutor.getProjectName();
+    }
+
+    @Override
+    public void close() {
+        dockerClient.close();
     }
 
     private DefaultDockerClient createDockerClient() {

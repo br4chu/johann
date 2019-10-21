@@ -1,12 +1,13 @@
 package io.brachu.johann;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.brachu.johann.cli.DockerComposeCliBuilder;
 
-public interface DockerCompose {
+public interface DockerCompose extends Closeable {
 
     void up();
 

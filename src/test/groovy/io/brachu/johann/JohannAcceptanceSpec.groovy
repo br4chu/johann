@@ -13,6 +13,10 @@ class JohannAcceptanceSpec extends Specification {
             .env('EXTERNAL_MANAGEMENT_PORT', '1337')
             .build()
 
+    def cleanup() {
+        dockerCompose.close()
+    }
+
     def "should run without errors"() {
         when:
         dockerCompose.up()
@@ -73,10 +77,13 @@ class JohannAcceptanceSpec extends Specification {
     }
 
     def "should show error from docker-compose cli"() {
-        when:
+        given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
                 .build()
+
+        when:
+        dockerCompose.isUp()
 
         then:
         def ex = thrown DockerComposeException
@@ -171,6 +178,8 @@ class JohannAcceptanceSpec extends Specification {
 
         when:
         dockerCompose.stop('rabbitmq')
+
+        and:
         dockerCompose.port('rabbitmq', 5672)
 
         then:
