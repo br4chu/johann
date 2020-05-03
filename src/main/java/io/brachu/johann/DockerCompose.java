@@ -1,6 +1,7 @@
 package io.brachu.johann;
 
 import java.io.Closeable;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,13 +58,13 @@ public interface DockerCompose extends Closeable {
         return new DockerComposeCliBuilder(executablePath);
     }
 
-    interface Builder extends OngoingBuild.File {
+    interface Builder extends OngoingBuild.ComposeFile {
 
     }
 
     interface OngoingBuild {
 
-        interface File {
+        interface ComposeFile {
 
             default OngoingBuild.Project classpath() {
                 return classpath("/docker-compose.yml");
@@ -75,9 +76,17 @@ public interface DockerCompose extends Closeable {
 
         }
 
-        interface Project extends Env {
+        interface Project extends WorkDir {
 
-            Env projectName(String projectName);
+            WorkDir projectName(String projectName);
+
+        }
+
+        interface WorkDir extends Env {
+
+            Env workDir(String workDir);
+
+            Env workDir(File workDir);
 
         }
 

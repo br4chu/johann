@@ -36,9 +36,9 @@ public class DockerComposeCli implements DockerCompose {
     private final DockerComposeCliExecutor composeExecutor;
     private DockerClient dockerClient;
 
-    DockerComposeCli(String executablePath, File file, ProjectNameProvider projectNameProvider, Map<String, String> env) {
+    DockerComposeCli(String executablePath, File file, File workDir, ProjectNameProvider projectNameProvider, Map<String, String> env) {
         projectName = projectNameProvider.provide();
-        composeExecutor = new DockerComposeCliExecutor(executablePath, file, projectName, env);
+        composeExecutor = new DockerComposeCliExecutor(executablePath, file, workDir, projectName, env);
         dockerClient = createDockerClient();
     }
 

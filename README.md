@@ -11,13 +11,13 @@ Maven dependency:
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 ```groovy
-compile 'io.brachu:johann:1.1.0'
+implementation 'io.brachu:johann:1.2.0'
 ```
 
 ## Requirements
@@ -53,6 +53,18 @@ DockerCompose compose = DockerCompose.builder().classpath("/path/to/docker-compo
 ```java
 DockerCompose compose = DockerCompose.builder().absolute("/path/to/docker-compose.yml").build();
 ```
+
+#### Choosing custom working directory for the docker-compose process
+
+```java
+DockerCompose compose = DockerCompose.builder()
+        .classpath()
+        .workDir("/my/custom/compose/workdir")
+        .build();
+```
+
+All relative paths in a compose file are resolved against working directory of docker-compose process. By default working directory is set to `null`
+which means that it will be the same as working directory of Java process that starts the docker-compose process.
 
 #### Starting and waiting for compose cluster to be up
 

@@ -1,10 +1,10 @@
 package io.brachu.johann
 
-import java.util.concurrent.TimeUnit
-
 import io.brachu.johann.exception.DockerComposeException
 import io.brachu.johann.exception.JohannTimeoutException
 import spock.lang.Specification
+
+import java.util.concurrent.TimeUnit
 
 class JohannAcceptanceSpec extends Specification {
 
@@ -210,7 +210,7 @@ class JohannAcceptanceSpec extends Specification {
     def "should stop all services"() {
         given:
         dockerCompose.up()
-        dockerCompose.waitForCluster(1, TimeUnit.MINUTES);
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
 
         when:
         dockerCompose.stopAll()
@@ -311,6 +311,38 @@ class JohannAcceptanceSpec extends Specification {
 
         cleanup:
         dockerCompose.down()
+    }
+
+    def "should be able to change working directory of a docker-compose process"() {
+        given:
+        dockerCompose = DockerCompose.builder()
+                .classpath("/docker-compose.short.yml")
+                .workDir(new File("./src/test/resources"))
+                .build()
+
+        when:
+        dockerCompose.up()
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        then:
+        dockerCompose.isUp()
+
+        cleanup:
+        dockerCompose.down()
+    }
+
+    def "should fail merging compose file without providing correct working directory of a docker-compose process"() {
+        given:
+        dockerCompose = DockerCompose.builder()
+                .classpath("/docker-compose.short.yml")
+                .build()
+
+        when:
+        dockerCompose.up()
+
+        then:
+        def ex = thrown DockerComposeException
+        ex.message.contains("No such file or directory")
     }
 
 }

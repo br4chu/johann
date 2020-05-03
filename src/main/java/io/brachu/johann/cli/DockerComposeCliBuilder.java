@@ -11,6 +11,7 @@ import java.util.Map;
 
 import io.brachu.johann.DockerCompose;
 import io.brachu.johann.exception.ComposeFileNotFoundException;
+import io.brachu.johann.exception.DockerComposeException;
 import io.brachu.johann.project.ExplicitProjectNameProvider;
 import io.brachu.johann.project.ImplicitProjectNameProvider;
 import io.brachu.johann.project.ProjectNameProvider;
@@ -18,7 +19,8 @@ import io.brachu.johann.project.ProjectNameProvider;
 public class DockerComposeCliBuilder implements DockerCompose.Builder {
 
     private final String executablePath;
-    private java.io.File file;
+    private File file;
+    private File workDir;
     private ProjectNameProvider projectNameProvider;
     private Map<String, String> env;
 
@@ -26,12 +28,6 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         this.executablePath = executablePath;
         projectNameProvider = new ImplicitProjectNameProvider();
         env = new LinkedHashMap<>();
-    }
-
-    private void assertFileExistence(java.io.File file) {
-        if (!file.exists()) {
-            throw new ComposeFileNotFoundException("File " + file.getAbsolutePath() + " does not exist.");
-        }
     }
 
     @Override
@@ -55,11 +51,39 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         return new Project();
     }
 
-    private class Project extends Env implements DockerCompose.OngoingBuild.Project {
+    private void assertFileExistence(java.io.File file) {
+        if (!file.exists()) {
+            throw new ComposeFileNotFoundException("File " + file.getAbsolutePath() + " does not exist.");
+        }
+    }
+
+    private void assertDirectoryExistence(java.io.File file) {
+        if (!file.isDirectory()) {
+            throw new DockerComposeException("Path " + file.getAbsolutePath() + " does not point to a directory");
+        }
+    }
+
+    private class Project extends WorkDir implements DockerCompose.OngoingBuild.Project {
 
         @Override
-        public DockerCompose.OngoingBuild.Env projectName(String projectName) {
+        public DockerCompose.OngoingBuild.WorkDir projectName(String projectName) {
             projectNameProvider = new ExplicitProjectNameProvider(projectName);
+            return this;
+        }
+
+    }
+
+    private class WorkDir extends Env implements DockerCompose.OngoingBuild.WorkDir {
+
+        @Override
+        public DockerCompose.OngoingBuild.Env workDir(String workDir) {
+            return workDir(new File(workDir));
+        }
+
+        @Override
+        public DockerCompose.OngoingBuild.Env workDir(File workDir) {
+            assertDirectoryExistence(workDir);
+            DockerComposeCliBuilder.this.workDir = workDir;
             return this;
         }
 
@@ -88,7 +112,7 @@ public class DockerComposeCliBuilder implements DockerCompose.Builder {
         @Override
         public DockerCompose build() {
             importSystemEnv();
-            return new DockerComposeCli(executablePath, file, projectNameProvider, env);
+            return new DockerComposeCli(executablePath, file, workDir, projectNameProvider, env);
         }
 
         private void importSystemEnv() {

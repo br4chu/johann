@@ -1,3 +1,9 @@
+# 1.2.0
+
+Added `workDir` method to `DockerCompose`'s instance builder. New method allows setting a working directory for docker-compose process. All relative
+paths in compose file will then be resolved against this directory. By default `workDir` is set to `null` which means that working directory
+of docker-compose process will be the same as working directory of Java process that starts it.
+
 # 1.1.0
 
 `up()` method no longer throws an exception when a docker-compose cluster is already up. Only INFO level log is printed in such case.

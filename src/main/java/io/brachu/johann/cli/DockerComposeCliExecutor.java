@@ -38,6 +38,8 @@ final class DockerComposeCliExecutor {
 
     private final String projectName;
     private final String composeFileContent;
+    private final File workDir;
+    private final Map<String, String> env;
 
     private final String[] upCmd;
     private final String[] downCmd;
@@ -47,14 +49,13 @@ final class DockerComposeCliExecutor {
     private final String[] startCmd;
     private final String[] stopCmd;
 
-    private final Map<String, String> env;
-
-    DockerComposeCliExecutor(String executablePath, File composeFile, String projectName, Map<String, String> env) {
-        String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
-
+    DockerComposeCliExecutor(String executablePath, File composeFile, File workDir, String projectName, Map<String, String> env) {
         this.projectName = projectName;
         composeFileContent = readComposeFile(composeFile);
+        this.workDir = workDir;
+        this.env = ImmutableMap.copyOf(env);
 
+        String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
         upCmd = concat(cmdPrefix, UP_COMMAND);
         downCmd = concat(cmdPrefix, DOWN_COMMAND);
         killCmd = concat(cmdPrefix, KILL_COMMAND);
@@ -62,8 +63,6 @@ final class DockerComposeCliExecutor {
         psCmd = concat(cmdPrefix, PS_COMMAND);
         startCmd = concat(cmdPrefix, START_COMMAND);
         stopCmd = concat(cmdPrefix, STOP_COMMAND);
-
-        this.env = ImmutableMap.copyOf(env);
     }
 
     String getProjectName() {
@@ -151,19 +150,24 @@ final class DockerComposeCliExecutor {
     }
 
     private String exec(String[] cmd, boolean verbose) {
-        String cmdJoined = String.join(" ", cmd);
+        String cmdConcat = String.join(" ", cmd);
 
         try {
-            return CliRunner.exec(cmd, env, this::pipeComposeFile, verbose);
+            return new CliRunner(cmd)
+                    .env(env)
+                    .workDir(workDir)
+                    .onProcessStart(this::pipeComposeFile)
+                    .verbose(verbose)
+                    .exec();
         } catch (IOException e) {
-            throw new DockerComposeException("Unexpected I/O exception while executing '" + cmdJoined + "'.", e);
+            throw new DockerComposeException("Unexpected I/O exception while executing '" + cmdConcat + "'.", e);
         } catch (InterruptedException e) {
-            throw new DockerComposeException("Interrupted unexpectedly while executing '" + cmdJoined + "'.");
+            throw new DockerComposeException("Interrupted unexpectedly while executing '" + cmdConcat + "'.");
         } catch (NonZeroExitCodeException e) {
-            String msg = String.format("Non-zero (%d) exit code returned from '%s'.%nOutput is:%n%s", e.getExitCode(), cmdJoined, e.getOutput());
+            String msg = String.format("Non-zero (%d) exit code returned from '%s'.%nOutput is:%n%s", e.getExitCode(), cmdConcat, e.getOutput());
             throw new DockerComposeException(msg);
         } catch (ExecutionTimedOutException e) {
-            throw new DockerComposeException("Timed out while waiting for '" + cmdJoined + "' to finish executing.");
+            throw new DockerComposeException("Timed out while waiting for '" + cmdConcat + "' to finish executing.");
         }
     }
 
