@@ -2,6 +2,7 @@ package io.brachu.johann;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,10 @@ public interface DockerCompose extends Closeable {
     void stop(String serviceName);
 
     void stop(String... serviceNames);
+
+    void followLogs();
+
+    void followLogs(PrintStream out, PrintStream err);
 
     void waitForService(String serviceName, long time, TimeUnit unit);
 

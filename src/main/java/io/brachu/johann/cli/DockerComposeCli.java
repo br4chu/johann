@@ -1,6 +1,7 @@
 package io.brachu.johann.cli;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,7 @@ public class DockerComposeCli implements DockerCompose {
 
     private final String projectName;
     private final DockerComposeCliExecutor composeExecutor;
-    private DockerClient dockerClient;
+    private final DockerClient dockerClient;
 
     DockerComposeCli(String executablePath, File file, File workDir, ProjectNameProvider projectNameProvider, Map<String, String> env) {
         projectName = projectNameProvider.provide();
@@ -188,6 +189,18 @@ public class DockerComposeCli implements DockerCompose {
     public void stop(String... serviceNames) {
         Validate.isTrue(isUp(), "Cluster is not up");
         composeExecutor.stop(serviceNames);
+    }
+
+    @Override
+    public void followLogs() {
+        composeExecutor.followLogs(SystemProcessOutputSink::create);
+    }
+
+    @Override
+    public void followLogs(PrintStream out, PrintStream err) {
+        Validate.notNull(out, "out == null");
+        Validate.notNull(err, "err == null");
+        composeExecutor.followLogs(process -> PrintStreamProcessOutputSink.create(process, out, err));
     }
 
     @Override

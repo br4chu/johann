@@ -4,6 +4,12 @@ Added `workDir` method to `DockerCompose`'s instance builder. New method allows 
 paths in compose file will then be resolved against this directory. By default `workDir` is set to `null` which means that working directory
 of docker-compose process will be the same as working directory of Java process that starts it.
 
+Added new methods to the API:
+* no-args `followLogs` method starts `docker-compose logs -f` process and passes all the standard & error output of that process to `System.out` and
+`System.err` respectively. The compose cluster should be up before this method is called, otherwise docker-compose process may exit prematurely and
+no logs will be captured.
+* overloaded two-args `followLogs` method does the same but allows you to specify `PrintStream`s to which logs should be redirected.
+
 # 1.1.0
 
 `up()` method no longer throws an exception when a docker-compose cluster is already up. Only INFO level log is printed in such case.

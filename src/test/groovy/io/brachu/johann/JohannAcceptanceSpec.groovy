@@ -4,6 +4,7 @@ import io.brachu.johann.exception.DockerComposeException
 import io.brachu.johann.exception.JohannTimeoutException
 import spock.lang.Specification
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
 class JohannAcceptanceSpec extends Specification {
@@ -343,6 +344,24 @@ class JohannAcceptanceSpec extends Specification {
         then:
         def ex = thrown DockerComposeException
         ex.message.contains("No such file or directory")
+    }
+
+    def "should dump logs to buffer after following them"() {
+        given:
+        def baos = new ByteArrayOutputStream()
+        def printStream = new PrintStream(baos)
+
+        when:
+        dockerCompose.up()
+        dockerCompose.followLogs(printStream, printStream)
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        then:
+        def logs = baos.toString(StandardCharsets.UTF_8.name())
+        logs.contains("/var/lib/postgresql/data")
+
+        cleanup:
+        dockerCompose.down()
     }
 
 }

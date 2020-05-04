@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
-import io.brachu.johann.cli.exception.ExecutionTimedOutException;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +18,22 @@ final class CliRunner {
     private static final Logger log = LoggerFactory.getLogger(CliRunner.class);
 
     private final String[] cmd;
-    private Map<String, String> env;
     private File workDir;
-    private Consumer<CliProcess> onProcessStart;
-    private boolean verbose;
+    private Map<String, String> env;
+
+    private ProcessOutputSinkFactory outputSinkFactory = process -> {
+        throw new IllegalStateException("ProcessOutputSinkFactory has not been set");
+    };
+    private Consumer<Process> onProcessStart = process -> {
+        throw new IllegalStateException("OnProcessStart consumer has not been set");
+    };
+    private ProcessWaitStrategy waitStrategy = process -> {
+        throw new IllegalStateException("Process wait strategy has not been set");
+    };
 
     CliRunner(String[] cmd) {
         this.cmd = cmd;
         env = Collections.emptyMap();
-    }
-
-    CliRunner env(Map<String, String> env) {
-        CliRunner.this.env = ImmutableMap.copyOf(env);
-        return this;
     }
 
     CliRunner workDir(File workDir) {
@@ -39,40 +41,57 @@ final class CliRunner {
         return this;
     }
 
-    CliRunner onProcessStart(Consumer<CliProcess> onProcessStart) {
-        CliRunner.this.onProcessStart = onProcessStart;
+    CliRunner env(Map<String, String> env) {
+        this.env = ImmutableMap.copyOf(env);
         return this;
     }
 
-    CliRunner verbose(boolean verbose) {
-        CliRunner.this.verbose = verbose;
+    CliRunner outputSinkFactory(ProcessOutputSinkFactory outputSinkFactory) {
+        this.outputSinkFactory = outputSinkFactory;
         return this;
     }
 
-    String exec() throws IOException, InterruptedException, NonZeroExitCodeException, ExecutionTimedOutException {
+    CliRunner onProcessStart(Consumer<Process> onProcessStart) {
+        this.onProcessStart = onProcessStart;
+        return this;
+    }
+
+    CliRunner waitStrategy(ProcessWaitStrategy waitStrategy) {
+        this.waitStrategy = waitStrategy;
+        return this;
+    }
+
+    String exec() throws InterruptedException, IOException, NonZeroExitCodeException, TimeoutException {
         log(cmd, env);
-        CliProcess process = startProcess();
+        Process process = startProcess();
+        ProcessOutputSink outputSink = outputSinkFactory.create(process);
         onProcessStart.accept(process);
 
-        if (process.waitFor(5, TimeUnit.MINUTES)) {
-            int exitCode = process.exitValue();
-            if (exitCode == 0) {
-                return process.standardOutput();
-            } else {
-                String error = process.errorOutput();
-                throw new NonZeroExitCodeException(exitCode, error);
-            }
-        } else {
+        try {
+            return waitForProcess(process, outputSink);
+        } catch (InterruptedException | TimeoutException ex) {
             process.destroy();
-            throw new ExecutionTimedOutException();
+            throw ex;
         }
     }
 
-    private CliProcess startProcess() throws IOException {
+    private String waitForProcess(Process process, ProcessOutputSink outputSink)
+            throws InterruptedException, IOException, NonZeroExitCodeException, TimeoutException {
+
+        int exitCode = waitStrategy.waitFor(process);
+        if (exitCode == 0) {
+            return outputSink.standardOutput();
+        } else {
+            String error = outputSink.errorOutput();
+            throw new NonZeroExitCodeException(exitCode, error);
+        }
+    }
+
+    private Process startProcess() throws IOException {
         ProcessBuilder bp = new ProcessBuilder(cmd);
         bp.directory(workDir);
         bp.environment().putAll(env);
-        return new CliProcess(bp.start(), verbose);
+        return bp.start();
     }
 
     private void log(String[] cmd, Map<String, String> env) {

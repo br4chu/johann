@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,7 +18,6 @@ import io.brachu.johann.ContainerId;
 import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
-import io.brachu.johann.cli.exception.ExecutionTimedOutException;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import io.brachu.johann.exception.DockerComposeException;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +36,10 @@ final class DockerComposeCliExecutor {
     private static final String[] PS_COMMAND = { "ps", "-q" };
     private static final String[] START_COMMAND = { "start" };
     private static final String[] STOP_COMMAND = { "stop" };
+    private static final String[] FOLLOW_LOGS_COMMAND = { "logs", "-f" };
+
+    private static final ProcessWaitStrategy DEFAULT_PROCESS_WAIT_STRATEGY = new TimedProcessWaitStrategy(5, TimeUnit.MINUTES);
+    private static final ProcessWaitStrategy NOOP_PROCESS_WAIT_STRATEGY = process -> 0;
 
     private final String projectName;
     private final String composeFileContent;
@@ -48,6 +53,7 @@ final class DockerComposeCliExecutor {
     private final String[] psCmd;
     private final String[] startCmd;
     private final String[] stopCmd;
+    private final String[] followLogsCmd;
 
     DockerComposeCliExecutor(String executablePath, File composeFile, File workDir, String projectName, Map<String, String> env) {
         this.projectName = projectName;
@@ -63,6 +69,7 @@ final class DockerComposeCliExecutor {
         psCmd = concat(cmdPrefix, PS_COMMAND);
         startCmd = concat(cmdPrefix, START_COMMAND);
         stopCmd = concat(cmdPrefix, STOP_COMMAND);
+        followLogsCmd = concat(cmdPrefix, FOLLOW_LOGS_COMMAND);
     }
 
     String getProjectName() {
@@ -71,24 +78,24 @@ final class DockerComposeCliExecutor {
 
     void up() {
         log.debug("Starting cluster");
-        exec(upCmd, true);
+        exec(upCmd, standardSink());
     }
 
     void down(DownConfig config) {
         log.debug("Shutting down cluster");
-        exec(concat(downCmd, config.toCmd()), true);
+        exec(concat(downCmd, config.toCmd()), standardSink());
         log.debug("Cluster shut down");
     }
 
     void kill() {
         log.debug("Killing cluster");
-        exec(killCmd, true);
+        exec(killCmd, standardSink());
         log.debug("Cluster killed");
     }
 
     PortBinding binding(String serviceName, Protocol protocol, int privatePort) {
         String[] params = { "--protocol", protocol.toString(), serviceName, String.valueOf(privatePort) };
-        String binding = exec(concat(portCmd, params), false);
+        String binding = exec(concat(portCmd, params), resultSink());
 
         if (StringUtils.isNotBlank(binding)) {
             return new PortBinding(binding);
@@ -99,75 +106,84 @@ final class DockerComposeCliExecutor {
     }
 
     List<ContainerId> ps() {
-        String[] ids = exec(psCmd, false).split(System.lineSeparator());
+        String[] ids = exec(psCmd, resultSink()).split(System.lineSeparator());
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
     List<ContainerId> ps(String serviceName) {
         String[] params = { serviceName };
-        String[] ids = exec(concat(psCmd, params), false).split(System.lineSeparator());
+        String[] ids = exec(concat(psCmd, params), resultSink()).split(System.lineSeparator());
         return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
     }
 
     void startAll() {
         log.debug("Starting all services");
-        exec(startCmd, true);
+        exec(startCmd, standardSink());
         log.debug("Started all services");
     }
 
     void start(String serviceName) {
         log.debug("Starting " + serviceName + " service");
         String[] params = { serviceName };
-        exec(concat(startCmd, params), true);
+        exec(concat(startCmd, params), standardSink());
         log.debug("Started " + serviceName + " service");
     }
 
     void start(String... serviceNames) {
         String services = String.join(", ", serviceNames);
         log.debug("Starting services: " + services);
-        exec(concat(startCmd, serviceNames), true);
+        exec(concat(startCmd, serviceNames), standardSink());
         log.debug("Started services: " + services);
     }
 
     void stopAll() {
         log.debug("Stopping all services");
-        exec(stopCmd, true);
+        exec(stopCmd, standardSink());
         log.debug("Stopped all services");
     }
 
     void stop(String serviceName) {
         log.debug("Stopping " + serviceName + " service");
         String[] params = { serviceName };
-        exec(concat(stopCmd, params), true);
+        exec(concat(stopCmd, params), standardSink());
         log.debug("Stopped " + serviceName + " service");
     }
 
     void stop(String... serviceNames) {
         String services = String.join(", ", serviceNames);
         log.debug("Stopping services: " + services);
-        exec(concat(stopCmd, serviceNames), true);
+        exec(concat(stopCmd, serviceNames), standardSink());
         log.debug("Stopped services: " + services);
     }
 
-    private String exec(String[] cmd, boolean verbose) {
-        String cmdConcat = String.join(" ", cmd);
+    void followLogs(ProcessOutputSinkFactory sinkFactory) {
+        log.debug("Following logs of all services");
+        exec(followLogsCmd, sinkFactory, NOOP_PROCESS_WAIT_STRATEGY);
+    }
 
+    private String exec(String[] cmd, ProcessOutputSinkFactory sinkFactory) {
+        return exec(cmd, sinkFactory, DEFAULT_PROCESS_WAIT_STRATEGY);
+    }
+
+    private String exec(String[] cmd, ProcessOutputSinkFactory sinkFactory, ProcessWaitStrategy waitStrategy) {
+        String cmdConcat = String.join(" ", cmd);
         try {
             return new CliRunner(cmd)
                     .env(env)
                     .workDir(workDir)
+                    .outputSinkFactory(sinkFactory)
                     .onProcessStart(this::pipeComposeFile)
-                    .verbose(verbose)
+                    .waitStrategy(waitStrategy)
                     .exec();
         } catch (IOException e) {
             throw new DockerComposeException("Unexpected I/O exception while executing '" + cmdConcat + "'.", e);
         } catch (InterruptedException e) {
             throw new DockerComposeException("Interrupted unexpectedly while executing '" + cmdConcat + "'.");
+        } catch (TimeoutException e) {
+            throw new DockerComposeException("Timed out while waiting for '" + cmdConcat + "' to finish executing.");
         } catch (NonZeroExitCodeException e) {
             String msg = String.format("Non-zero (%d) exit code returned from '%s'.%nOutput is:%n%s", e.getExitCode(), cmdConcat, e.getOutput());
             throw new DockerComposeException(msg);
-        } catch (ExecutionTimedOutException e) {
-            throw new DockerComposeException("Timed out while waiting for '" + cmdConcat + "' to finish executing.");
         }
     }
 
@@ -179,8 +195,8 @@ final class DockerComposeCliExecutor {
         }
     }
 
-    private void pipeComposeFile(CliProcess process) {
-        OutputStream output = process.outputStream();
+    private void pipeComposeFile(Process process) {
+        OutputStream output = process.getOutputStream();
         try {
             IOUtils.write(composeFileContent, output, StandardCharsets.UTF_8);
             output.flush();
@@ -192,6 +208,14 @@ final class DockerComposeCliExecutor {
 
     private String[] concat(String[] first, String[] second) {
         return Stream.concat(Arrays.stream(first), Arrays.stream(second)).toArray(String[]::new);
+    }
+
+    private ProcessOutputSinkFactory standardSink() {
+        return SystemProcessOutputSink::create;
+    }
+
+    private ProcessOutputSinkFactory resultSink() {
+        return LazyProcessOutputSink::new;
     }
 
 }

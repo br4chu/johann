@@ -233,6 +233,28 @@ You can even use `ContainerPort::format` method to create proper URL address wit
 String url = compose.port("rabbitmq", 5672).format("tcp://$HOST:$PORT");
 ```
 
+#### Redirecting logs from containers to standard output and standard error
+
+```java
+compose.up();
+compose.followLogs();
+```
+
+Logs from containers will be passed to `System.out` and `System.err` of currently running JVM until cluster is shut down or currently running JVM
+exits.
+
+Note that cluster should be up before calling `followLogs` method. It may return prematurely otherwise and won't capture any logs.
+
+#### Redirecting logs from containers to custom `PrintStream` objects
+
+```
+PrintStream out = new PrintStream(...);
+PrintStream err = new PrintStream(...);
+
+compose.up();
+compose.followLogs(out, err);
+```
+
 ### Remote docker engine
 
 Johann can connect to a remote Docker Engine if `DOCKER_HOST` environment variable is passed to the Java process that runs Johann.
