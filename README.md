@@ -11,13 +11,13 @@ Maven dependency:
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 ```groovy
-implementation 'io.brachu:johann:1.2.0'
+implementation 'io.brachu:johann:1.3.0'
 ```
 
 ## Requirements
