@@ -90,6 +90,13 @@ you can customize behaviour of `up` method by supplying it with a `UpConfig` obj
 | ------------ | -------------- | --------------
 | `forceBuild` | `--build`      | `false`
 
+Example usage:
+
+```java
+UpConfig config = UpConfig.defaults().withForceBuild(true);
+compose.up(config);
+```
+
 #### Shutting compose cluster down gracefully
 
 ```java
