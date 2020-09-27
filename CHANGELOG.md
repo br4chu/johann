@@ -1,3 +1,9 @@
+# 1.3.0
+
+`up()` method can now be paramertrized with `UpConfig` object. Currently the only property of `UpConfig` object is `forceBuild` property which
+forces a docker build of all containers if their service has proper `build:` section defined in docker-compose.yml file. This is equivalent of
+passing `--build` switch to `docker-compose up` command.
+
 # 1.2.0
 
 Added `workDir` method to `DockerCompose`'s instance builder. New method allows setting a working directory for docker-compose process. All relative

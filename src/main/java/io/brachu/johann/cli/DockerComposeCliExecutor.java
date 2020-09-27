@@ -18,6 +18,7 @@ import io.brachu.johann.ContainerId;
 import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
+import io.brachu.johann.UpConfig;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import io.brachu.johann.exception.DockerComposeException;
 import org.apache.commons.io.IOUtils;
@@ -76,9 +77,9 @@ final class DockerComposeCliExecutor {
         return projectName;
     }
 
-    void up() {
+    void up(UpConfig config) {
         log.debug("Starting cluster");
-        exec(upCmd, standardSink());
+        exec(concat(upCmd, config.toCmd()), standardSink());
     }
 
     void down(DownConfig config) {

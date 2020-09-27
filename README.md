@@ -80,6 +80,16 @@ For most consistent results in integration tests, all your containers should imp
 
 You can read more about container health checks [here](https://docs.docker.com/engine/reference/builder/#healthcheck).
 
+#### Customizing cluster startup
+
+you can customize behaviour of `up` method by supplying it with a `UpConfig` object.
+
+`UpConfig` object has following properties:
+
+| Property     | CLI equivalent | default value
+| ------------ | -------------- | --------------
+| `forceBuild` | `--build`      | `false`
+
 #### Shutting compose cluster down gracefully
 
 ```java
@@ -135,7 +145,7 @@ You can stop and start multiple services at once by using varargs-flavoured `sto
 available that can stop and start all services defined in your docker-compose file.
 
 ```java
-// The order of services matters. Rabbitmq service will be stopped before postgresql.
+// Order of services matters. Rabbitmq service will be stopped before postgresql.
 compose.stop("rabbitmq", "postgresql");
 // Postgresql will start before rabbitmq
 compose.start("postgresql", "rabbitmq");

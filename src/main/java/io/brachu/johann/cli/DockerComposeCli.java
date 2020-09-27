@@ -19,6 +19,7 @@ import io.brachu.johann.DockerCompose;
 import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
+import io.brachu.johann.UpConfig;
 import io.brachu.johann.exception.DockerClientException;
 import io.brachu.johann.exception.DockerComposeException;
 import io.brachu.johann.exception.JohannTimeoutException;
@@ -45,10 +46,15 @@ public class DockerComposeCli implements DockerCompose {
 
     @Override
     public void up() {
+        up(UpConfig.defaults());
+    }
+
+    @Override
+    public void up(UpConfig config) {
         if (isUp()) {
             log.info("Executing 'up' command for a cluster that is already up.");
         }
-        composeExecutor.up();
+        composeExecutor.up(config);
     }
 
     @Override

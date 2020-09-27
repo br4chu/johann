@@ -13,6 +13,8 @@ public interface DockerCompose extends Closeable {
 
     void up();
 
+    void up(UpConfig config);
+
     void down();
 
     void down(DownConfig config);

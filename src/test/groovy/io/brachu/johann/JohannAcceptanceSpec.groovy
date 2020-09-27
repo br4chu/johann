@@ -364,4 +364,25 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
+    def "should build an image if build is forced"() {
+        given:
+        dockerCompose = DockerCompose.builder()
+                .classpath("/docker-compose.build.yml")
+                .workDir("src/test/resources")
+                .build()
+
+        and:
+        def upConfig = UpConfig.defaults().withForceBuild(true)
+
+        when:
+        dockerCompose.up(upConfig)
+        dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
+
+        then:
+        dockerCompose.isUp()
+
+        cleanup:
+        dockerCompose.down()
+    }
+
 }
