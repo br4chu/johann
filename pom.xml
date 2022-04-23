@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -67,6 +68,7 @@
         <jsr305.version>3.0.2</jsr305.version>
         <junit.version>4.13.1</junit.version>
         <logback.version>1.2.9</logback.version>
+        <pig.version>0.1.1</pig.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spock.version>1.3-groovy-2.5</spock.version>
 
@@ -217,29 +219,32 @@
                 <version>${compiler-plugin.version}</version>
                 <configuration>
                     <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.brachu</groupId>
+                            <artifactId>pig</artifactId>
+                            <version>${pig.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
             <plugin>
-                <groupId>de.shadowhunt.maven.plugins</groupId>
-                <artifactId>package-info-maven-plugin</artifactId>
-                <version>${package-info-plugin.version}</version>
-                <configuration>
-                    <outputDirectory>src/main/java</outputDirectory>
-                    <packages>
-                        <package>
-                            <annotations>
-                                <annotation>@javax.annotation.ParametersAreNonnullByDefault</annotation>
-                            </annotations>
-                            <regex>io\.brachu\..*</regex>
-                        </package>
-                    </packages>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle-plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
+                        <id>validate</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <configLocation>${checkstyle.rules.path}</configLocation>
+                            <violationSeverity>warning</violationSeverity>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
                         <goals>
-                            <goal>package-info</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -258,27 +263,6 @@
                     <execution>
                         <id>analyze-compile</id>
                         <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>process-sources</phase>
-                        <configuration>
-                            <configLocation>${checkstyle.rules.path}</configLocation>
-                            <violationSeverity>warning</violationSeverity>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                        </configuration>
                         <goals>
                             <goal>check</goal>
                         </goals>
