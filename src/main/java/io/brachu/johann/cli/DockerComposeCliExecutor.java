@@ -62,7 +62,7 @@ final class DockerComposeCliExecutor {
         this.workDir = workDir;
         this.env = ImmutableMap.copyOf(env);
 
-        String[] cmdPrefix = new String[] { executablePath, "-f", "-", "-p", projectName };
+        String[] cmdPrefix = createCmdPrefix(executablePath, projectName);
         upCmd = concat(cmdPrefix, UP_COMMAND);
         downCmd = concat(cmdPrefix, DOWN_COMMAND);
         killCmd = concat(cmdPrefix, KILL_COMMAND);
@@ -96,9 +96,9 @@ final class DockerComposeCliExecutor {
 
     PortBinding binding(String serviceName, Protocol protocol, int privatePort) {
         String[] params = { "--protocol", protocol.toString(), serviceName, String.valueOf(privatePort) };
-        String binding = exec(concat(portCmd, params), resultSink());
+        String binding = StringUtils.trim(exec(concat(portCmd, params), resultSink()));
 
-        if (StringUtils.isNotBlank(binding)) {
+        if (PortBinding.isBound(binding)) {
             return new PortBinding(binding);
         } else {
             throw new DockerComposeException("No host port is bound to '" + serviceName + "' container's " + privatePort + " " + protocol.toString()
@@ -162,6 +162,10 @@ final class DockerComposeCliExecutor {
         exec(followLogsCmd, sinkFactory, NOOP_PROCESS_WAIT_STRATEGY);
     }
 
+    private String[] createCmdPrefix(String executablePath, String projectName) {
+        return new String[] { executablePath, "--ansi", "never", "-f", "-", "-p", projectName };
+    }
+
     private String exec(String[] cmd, ProcessOutputSinkFactory sinkFactory) {
         return exec(cmd, sinkFactory, DEFAULT_PROCESS_WAIT_STRATEGY);
     }
@@ -216,7 +220,7 @@ final class DockerComposeCliExecutor {
     }
 
     private ProcessOutputSinkFactory resultSink() {
-        return LazyProcessOutputSink::new;
+        return OnDemandProcessOutputSink::new;
     }
 
 }

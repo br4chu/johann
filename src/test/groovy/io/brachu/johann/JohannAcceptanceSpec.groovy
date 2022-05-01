@@ -1,11 +1,11 @@
 package io.brachu.johann
 
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
+
 import io.brachu.johann.exception.DockerComposeException
 import io.brachu.johann.exception.JohannTimeoutException
 import spock.lang.Specification
-
-import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 
 class JohannAcceptanceSpec extends Specification {
 
@@ -39,7 +39,7 @@ class JohannAcceptanceSpec extends Specification {
         then:
         ids.size() == 2
         ids.every {
-            it.toString().matches('[0-9a-f]{64}')
+            it.toString().matches('[\\da-f]{64}')
         }
 
         cleanup:
@@ -77,25 +77,21 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
-    def "should show error from docker-compose cli"() {
+    def "isUp() should return false if cluster was not started"() {
         given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
                 .build()
 
-        when:
-        dockerCompose.isUp()
-
-        then:
-        def ex = thrown DockerComposeException
-        ex.message.startsWith('Non-zero (1) exit code returned from \'docker-compose -f')
+        expect:
+        !dockerCompose.isUp()
     }
 
     def "should pass project name to docker-compose"() {
         given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
-                .projectName('_johann-0')
+                .projectName('johann-0')
                 .env('EXTERNAL_MANAGEMENT_PORT', '1337')
                 .build()
 
@@ -106,7 +102,7 @@ class JohannAcceptanceSpec extends Specification {
 
         then:
         containerPort.port == 1337
-        dockerCompose.projectName == '_johann-0'
+        dockerCompose.projectName == 'johann-0'
 
         cleanup:
         dockerCompose.down()
@@ -125,7 +121,7 @@ class JohannAcceptanceSpec extends Specification {
 
     def "should retrieve project name from docker-compose-maven-plugin system property when specified"() {
         given:
-        def expectedProjectName = 'helloFromMaven'
+        def expectedProjectName = 'hellofrommaven'
         System.setProperty('maven.dockerCompose.project', expectedProjectName)
         dockerCompose = DockerCompose.builder()
                 .classpath()
@@ -307,8 +303,8 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.waitForCluster(1, TimeUnit.MINUTES)
 
         expect:
-        dockerCompose.containerIp('rabbitmq') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
-        dockerCompose.containerIp('postgresql') =~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+        dockerCompose.containerIp('rabbitmq') =~ /\d+\.\d+\.\d+\.\d+/
+        dockerCompose.containerIp('postgresql') =~ /\d+\.\d+\.\d+\.\d+/
 
         cleanup:
         dockerCompose.down()
@@ -343,7 +339,7 @@ class JohannAcceptanceSpec extends Specification {
 
         then:
         def ex = thrown DockerComposeException
-        ex.message.contains("No such file or directory")
+        ex.message.toLowerCase().contains("no such file or directory")
     }
 
     def "should dump logs to buffer after following them"() {

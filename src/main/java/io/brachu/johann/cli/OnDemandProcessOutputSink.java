@@ -6,11 +6,11 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 
-final class LazyProcessOutputSink implements ProcessOutputSink {
+final class OnDemandProcessOutputSink implements ProcessOutputSink {
 
     private final Process process;
 
-    LazyProcessOutputSink(Process process) {
+    OnDemandProcessOutputSink(Process process) {
         this.process = process;
     }
 
