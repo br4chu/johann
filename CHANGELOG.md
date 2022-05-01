@@ -1,3 +1,9 @@
+# 1.4.0
+
+Minor version bump to fix compatibility issues with new Docker Compose v2.
+
+This version has been tested against docker-compose v1.29.2 and v2.5.0.
+
 # 1.3.0
 
 `up()` method can now be paramertrized with `UpConfig` object. Currently the only property of `UpConfig` object is `forceBuild` property which
@@ -11,9 +17,10 @@ paths in compose file will then be resolved against this directory. By default `
 of docker-compose process will be the same as working directory of Java process that starts it.
 
 Added new methods to the API:
+
 * no-args `followLogs` method starts `docker-compose logs -f` process and passes all the standard & error output of that process to `System.out` and
-`System.err` respectively. The compose cluster should be up before this method is called, otherwise docker-compose process may exit prematurely and
-no logs will be captured.
+  `System.err` respectively. The compose cluster should be up before this method is called, otherwise docker-compose process may exit prematurely and
+  no logs will be captured.
 * overloaded two-args `followLogs` method does the same but allows you to specify `PrintStream`s to which logs should be redirected.
 
 # 1.1.0
@@ -27,6 +34,7 @@ case.
 This will release external resources (e.g. opened TCP connections) back to the operating system.
 
 Added new methods to the API:
+
 * varargs-flavoured `stop` method can stop multiple services at once
 * varargs-flavoured `start` method can start multiple services at once
 * `stopAll` method stops all services defined in a docker-compose file
@@ -75,6 +83,7 @@ Updated dependencies to newest stable versions, including docker-client.
 
 Before generating random project name, Johann will try to read value of COMPOSE_PROJECT_NAME environment variable.  
 The priority of implicit project name creation is now:
+
 1. `maven.dockerCompose.project` system property
 2. `COMPOSE_PROJECT_NAME` environment variable
 3. Random ASCII string
@@ -96,7 +105,7 @@ Used shaded version of Spotify's Docker Client. May reduce dependency problems i
 New operation:
 
 * `ip` - retrieves container IP address for`` a service within specified network. If network is left unspecified, an IP address from default network will be
-retrieved.
+  retrieved.
 
 # 0.3.0
 
@@ -116,8 +125,9 @@ New operations:
 
 * Removed "alreadyStarted" step from the builder. Johann will automatically find out if docker-compose cluster is up or not.
 
-* Added integration with [docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin). If you don't specify project's name via builder, Johann will first try to retrieve project's name
-from `maven.dockerCompose.project` system property. If such property doesn't exist or has a blank value, only then random project name will be used. 
+* Added integration with [docker-compose-maven-plugin](https://github.com/br4chu/docker-compose-maven-plugin). If you don't specify project's name via builder,
+  Johann will first try to retrieve project's name
+  from `maven.dockerCompose.project` system property. If such property doesn't exist or has a blank value, only then random project name will be used.
 
 # 0.1.0
 

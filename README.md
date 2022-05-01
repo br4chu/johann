@@ -7,17 +7,20 @@ Johann is a simple Java library that communicates with docker-compose CLI.
 Just add Johann as a maven/gradle dependency and start using it. See [Example usage](#example-usage) for more information.
 
 Maven dependency:
+
 ```xml
+
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
 Gradle dependency:
+
 ```groovy
-implementation 'io.brachu:johann:1.3.0'
+implementation 'io.brachu:johann:1.4.0'
 ```
 
 ## Requirements

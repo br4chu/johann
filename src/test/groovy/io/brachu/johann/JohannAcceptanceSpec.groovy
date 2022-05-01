@@ -77,14 +77,19 @@ class JohannAcceptanceSpec extends Specification {
         dockerCompose.down()
     }
 
-    def "isUp() should return false if cluster was not started"() {
+    def "should show error from docker-compose cli"() {
         given:
         dockerCompose = DockerCompose.builder()
                 .classpath()
+                .env('EXTERNAL_MANAGEMENT_PORT', 'nonnumber')
                 .build()
 
-        expect:
-        !dockerCompose.isUp()
+        when:
+        dockerCompose.up()
+
+        then:
+        def ex = thrown DockerComposeException
+        (ex.message =~ /Non-zero \(\d+\) exit code returned from 'docker-compose/).size() == 1
     }
 
     def "should pass project name to docker-compose"() {
