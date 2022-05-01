@@ -184,7 +184,7 @@ You can override this behaviour by passing your own project name to the builder:
 ```java
 DockerCompose compose = DockerCompose.builder()
     .classpath()
-    .projectName("customProjectName")
+    .projectName("customprojectname")
     .build();
 ```
 
