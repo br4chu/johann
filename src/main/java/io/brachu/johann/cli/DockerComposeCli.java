@@ -72,7 +72,9 @@ public class DockerComposeCli implements DockerCompose {
 
     @Override
     public void kill() {
-        Validate.isTrue(isUp(), "Cluster is not up");
+        if (!isUp()) {
+            log.info("Executing 'kill' command for a cluster that is already down.");
+        }
         composeExecutor.kill();
     }
 

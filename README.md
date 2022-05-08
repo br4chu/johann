@@ -9,18 +9,17 @@ Just add Johann as a maven/gradle dependency and start using it. See [Example us
 Maven dependency:
 
 ```xml
-
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 
 ```groovy
-implementation 'io.brachu:johann:1.4.0'
+implementation 'io.brachu:johann:1.5.0'
 ```
 
 ## Requirements

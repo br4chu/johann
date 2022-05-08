@@ -1,3 +1,8 @@
+# 1.5.0
+
+`kill()` method will no longer throw an exception when cluster is already down. Such operation will be logged instead. This makes behaviour of `kill()` method
+consistent  with current behaviour of `down()` method.
+
 # 1.4.0
 
 Minor version bump to fix compatibility issues with new Docker Compose v2.
