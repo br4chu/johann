@@ -1,18 +1,22 @@
 package io.brachu.johann.cli;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.AttachedNetwork;
-import com.spotify.docker.client.messages.ContainerInfo;
-import com.spotify.docker.client.messages.ContainerState;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.HealthState;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
 import io.brachu.johann.ContainerId;
 import io.brachu.johann.ContainerPort;
 import io.brachu.johann.DockerCompose;
@@ -20,7 +24,6 @@ import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
 import io.brachu.johann.Protocol;
 import io.brachu.johann.UpConfig;
-import io.brachu.johann.exception.DockerClientException;
 import io.brachu.johann.exception.DockerComposeException;
 import io.brachu.johann.exception.JohannTimeoutException;
 import io.brachu.johann.project.ProjectNameProvider;
@@ -36,12 +39,14 @@ public class DockerComposeCli implements DockerCompose {
 
     private final String projectName;
     private final DockerComposeCliExecutor composeExecutor;
+    private final DockerClientConfig dockerClientConfig;
     private final DockerClient dockerClient;
 
     DockerComposeCli(String executablePath, File file, File workDir, ProjectNameProvider projectNameProvider, Map<String, String> env) {
         projectName = projectNameProvider.provide();
         composeExecutor = new DockerComposeCliExecutor(executablePath, file, workDir, projectName, env);
-        dockerClient = createDockerClient();
+        dockerClientConfig = createDockerClientConfig();
+        dockerClient = createDockerClient(dockerClientConfig);
     }
 
     @Override
@@ -95,17 +100,13 @@ public class DockerComposeCli implements DockerCompose {
         Validate.isTrue(!containerIds.isEmpty(), serviceName + " service is not present in the cluster");
 
         ContainerId containerId = containerIds.get(0);
-        Map<String, AttachedNetwork> networks;
-        try {
-            networks = dockerClient.inspectContainer(containerId.toString()).networkSettings().networks();
-        } catch (DockerException | InterruptedException e) {
-            throw new DockerComposeException("Unexpected exception while inspecting container with id " + containerId + ".", e);
-        }
+        InspectContainerResponse response = dockerClient.inspectContainerCmd(containerId.toString()).exec();
+        Map<String, ContainerNetwork> networks = response.getNetworkSettings().getNetworks();
 
         if (networks != null) {
-            AttachedNetwork network = networks.get(networkName);
+            ContainerNetwork network = networks.get(networkName);
             if (network != null) {
-                return network.ipAddress();
+                return network.getIpAddress();
             } else {
                 throw new DockerComposeException("Service " + serviceName + "is not bound to " + networkName + " network. "
                         + "Have you provided a correct network name?");
@@ -124,7 +125,7 @@ public class DockerComposeCli implements DockerCompose {
     public ContainerPort port(String serviceName, Protocol protocol, int privatePort) {
         Validate.isTrue(isUp(), "Cluster is not up");
         PortBinding binding = composeExecutor.binding(serviceName, protocol, privatePort);
-        return new ContainerPort(dockerClient.getHost(), binding);
+        return new ContainerPort(dockerClientConfig.getDockerHost(), binding);
     }
 
     @Override
@@ -239,34 +240,41 @@ public class DockerComposeCli implements DockerCompose {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         dockerClient.close();
     }
 
-    private DefaultDockerClient createDockerClient() {
-        try {
-            return DefaultDockerClient.fromEnv().build();
-        } catch (DockerCertificateException e) {
-            throw new DockerClientException("Certificate failure during creation of a docker client.", e);
-        }
+    private DockerClientConfig createDockerClientConfig() {
+        return DefaultDockerClientConfig.createDefaultConfigBuilder().build();
     }
 
-    private boolean containersHealthyOrRunning() throws DockerException, InterruptedException {
+    private DockerHttpClient createDockerHttpClient(DockerClientConfig config) {
+        return new ApacheDockerHttpClient.Builder()
+                .dockerHost(config.getDockerHost())
+                .connectionTimeout(Duration.ofSeconds(1))
+                .responseTimeout(Duration.ofSeconds(10))
+                .build();
+    }
+
+    private DockerClient createDockerClient(DockerClientConfig config) {
+        DockerHttpClient httpClient = createDockerHttpClient(config);
+        return DockerClientImpl.getInstance(config, httpClient);
+    }
+
+    private boolean containersHealthyOrRunning() {
         return containersHealthyOrRunning(ps());
     }
 
-    private boolean containersHealthyOrRunning(List<ContainerId> containerIds) throws DockerException, InterruptedException {
+    private boolean containersHealthyOrRunning(List<ContainerId> containerIds) {
         for (ContainerId id : containerIds) {
-            ContainerInfo info = dockerClient.inspectContainer(id.toString());
-            String status = info.state().status();
-            ContainerState.Health health = info.state().health();
-            String healthStatus = health != null ? health.status() : "unsupported";
-
+            InspectContainerResponse response = dockerClient.inspectContainerCmd(id.toString()).exec();
+            String status = response.getState().getStatus();
+            HealthState health = response.getState().getHealth();
+            String healthStatus = health != null ? health.getStatus() : "unsupported";
             if (!"running".equals(status) || !"healthy".equals(healthStatus) && !"unsupported".equals(healthStatus)) {
                 return false;
             }
         }
-
         return true;
     }
 

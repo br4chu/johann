@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableMap;
 import io.brachu.johann.cli.exception.NonZeroExitCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ final class CliRunner {
     }
 
     CliRunner env(Map<String, String> env) {
-        this.env = ImmutableMap.copyOf(env);
+        this.env = Map.copyOf(env);
         return this;
     }
 

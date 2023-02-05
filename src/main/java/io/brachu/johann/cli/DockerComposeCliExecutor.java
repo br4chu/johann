@@ -13,7 +13,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableMap;
 import io.brachu.johann.ContainerId;
 import io.brachu.johann.DownConfig;
 import io.brachu.johann.PortBinding;
@@ -60,7 +59,7 @@ final class DockerComposeCliExecutor {
         this.projectName = projectName;
         composeFileContent = readComposeFile(composeFile);
         this.workDir = workDir;
-        this.env = ImmutableMap.copyOf(env);
+        this.env = Map.copyOf(env);
 
         String[] cmdPrefix = createCmdPrefix(executablePath, projectName);
         upCmd = concat(cmdPrefix, UP_COMMAND);

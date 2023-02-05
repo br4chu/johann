@@ -1,16 +1,18 @@
 package io.brachu.johann;
 
+import java.net.URI;
+
 public class ContainerPort {
 
-    private final String host;
+    private final URI host;
     private final String port;
 
-    public ContainerPort(String host, PortBinding binding) {
+    public ContainerPort(URI host, PortBinding binding) {
         this.host = host;
         port = binding.getPort();
     }
 
-    public String getHost() {
+    public URI getHost() {
         return host;
     }
 
@@ -20,7 +22,7 @@ public class ContainerPort {
 
     public String format(String template) {
         return template
-                .replace("$HOST", host)
+                .replace("$HOST", host.toString())
                 .replace("$PORT", port);
     }
 

@@ -1,7 +1,13 @@
+# 2.0.0
+
+* Dropped Spotify's docker-client dependency because it is no longer maintained. Switched to [docker-java](https://github.com/docker-java/docker-java) instead.
+* `ContainerPort.getHost()` method now returns `java.net.URI` instead of `String`.
+* Project is now compiled against JDK 11 (bump from JDK 8).
+
 # 1.5.0
 
 `kill()` method will no longer throw an exception when cluster is already down. Such operation will be logged instead. This makes behaviour of `kill()` method
-consistent  with current behaviour of `down()` method.
+consistent with current behaviour of `down()` method.
 
 # 1.4.0
 
