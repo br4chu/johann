@@ -9,17 +9,18 @@ Just add Johann as a maven/gradle dependency and start using it. See [Example us
 Maven dependency:
 
 ```xml
+
 <dependency>
     <groupId>io.brachu</groupId>
     <artifactId>johann</artifactId>
-    <version>1.5.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
 Gradle dependency:
 
 ```groovy
-implementation 'io.brachu:johann:1.5.0'
+implementation 'io.brachu:johann:2.0.0'
 ```
 
 ## Requirements
@@ -35,31 +36,31 @@ implementation 'io.brachu:johann:1.5.0'
 #### Running docker-compose.yml file placed in one of the root directories of classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().classpath().build();
+DockerCompose compose=DockerCompose.builder().classpath().build();
 ```
 
 #### Running docker-compose.yml file with custom name in one of the root directories of classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().classpath("/custom-compose-file.yml").build();
+DockerCompose compose=DockerCompose.builder().classpath("/custom-compose-file.yml").build();
 ```
 
 #### Running docker-compose.yml file in one of the subdirectories of the classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().classpath("/path/to/docker-compose.yml").build();
+DockerCompose compose=DockerCompose.builder().classpath("/path/to/docker-compose.yml").build();
 ```
 
 #### Running docker-compose.yml file outside of classpath
 
 ```java
-DockerCompose compose = DockerCompose.builder().absolute("/path/to/docker-compose.yml").build();
+DockerCompose compose=DockerCompose.builder().absolute("/path/to/docker-compose.yml").build();
 ```
 
 #### Choosing custom working directory for the docker-compose process
 
 ```java
-DockerCompose compose = DockerCompose.builder()
+DockerCompose compose=DockerCompose.builder()
         .classpath()
         .workDir("/my/custom/compose/workdir")
         .build();
@@ -72,7 +73,7 @@ which means that it will be the same as working directory of Java process that s
 
 ```java
 compose.up();
-compose.waitForCluster(1, TimeUnit.MINUTES);
+        compose.waitForCluster(1,TimeUnit.MINUTES);
 ```
 
 Calling `up` method is equivalent to executing `docker-compose up -d` command.
@@ -88,15 +89,15 @@ you can customize behaviour of `up` method by supplying it with a `UpConfig` obj
 
 `UpConfig` object has following properties:
 
-| Property     | CLI equivalent | default value
-| ------------ | -------------- | --------------
-| `forceBuild` | `--build`      | `false`
+| Property     | CLI equivalent | default value 
+|--------------|----------------|---------------
+| `forceBuild` | `--build`      | `false`       
 
 Example usage:
 
 ```java
-UpConfig config = UpConfig.defaults().withForceBuild(true);
-compose.up(config);
+UpConfig config=UpConfig.defaults().withForceBuild(true);
+        compose.up(config);
 ```
 
 #### Shutting compose cluster down gracefully
@@ -113,18 +114,18 @@ You can customize behaviour of `down` method by supplying it with a `DownConfig`
 
 `DownConfig` object has following properties:
 
-| Property         | CLI equivalent     | default value
-| ---------------- | ------------------ | -------------------------------------
-| `removeImages`   | `--rmi`            | `NONE`
-| `removeVolumes`  | `-v`               | `true`
-| `removeOrphans`  | `--remove-orphans` | `false`
-| `timeoutSeconds` | `-t`               | `10`
+| Property         | CLI equivalent     | default value 
+|------------------|--------------------|---------------
+| `removeImages`   | `--rmi`            | `NONE`        
+| `removeVolumes`  | `-v`               | `true`        
+| `removeOrphans`  | `--remove-orphans` | `false`       
+| `timeoutSeconds` | `-t`               | `10`          
 
 Example usage:
 
 ```java
-DownConfig config = DownConfig.defaults().withRemoveVolumes(false);
-compose.down(config);
+DownConfig config=DownConfig.defaults().withRemoveVolumes(false);
+        compose.down(config);
 ```
 
 #### Killing compose cluster (may leave garbage containers)
@@ -145,7 +146,7 @@ compose.stop("postgresql");
 
 ```java
 compose.start("postgresql");
-compose.waitForService("postgresql", 1, TimeUnit.MINUTES);
+        compose.waitForService("postgresql",1,TimeUnit.MINUTES);
 ```
 
 #### Stopping and starting multiple services at once
@@ -155,24 +156,24 @@ available that can stop and start all services defined in your docker-compose fi
 
 ```java
 // Order of services matters. Rabbitmq service will be stopped before postgresql.
-compose.stop("rabbitmq", "postgresql");
+compose.stop("rabbitmq","postgresql");
 // Postgresql will start before rabbitmq
-compose.start("postgresql", "rabbitmq");
+        compose.start("postgresql","rabbitmq");
 ```
 
 ```java
 compose.stopAll()
-compose.startAll()
+        compose.startAll()
 ```
 
 #### Passing environment variables to docker-compose
 
 ```java
-DockerCompose compose = DockerCompose.builder()
-    .classpath()
-    .env("MY_ENV_VAR", "my value")
-    .env("ANOTHER_VAR", "another value")
-    .build();
+DockerCompose compose=DockerCompose.builder()
+        .classpath()
+        .env("MY_ENV_VAR","my value")
+        .env("ANOTHER_VAR","another value")
+        .build();
 ```
 
 #### Assigning project name to your compose cluster
@@ -181,10 +182,10 @@ By default, Johann uses implicitly generated project name and passes it to `dock
 You can override this behaviour by passing your own project name to the builder:
 
 ```java
-DockerCompose compose = DockerCompose.builder()
-    .classpath()
-    .projectName("customprojectname")
-    .build();
+DockerCompose compose=DockerCompose.builder()
+        .classpath()
+        .projectName("customprojectname")
+        .build();
 ```
 
 #### Implicit project name generation
@@ -216,13 +217,13 @@ services:
 You can easily retrieve container's IP address for rabbitmq service:
 
 ```java
-String ip = compose.containerIp("rabbitmq");
+String ip=compose.containerIp("rabbitmq");
 ```
 
 If a container is bound to multiple networks, you can pass the network name as a second argument to the `ip` method:
 
 ```java
-String ip = compose.containerIp("rabbitmq", "my_custom_network");
+String ip=compose.containerIp("rabbitmq","my_custom_network");
 ```
 
 #### Retrieving host port of a container
@@ -242,21 +243,21 @@ services:
 You can retrieve a host port bound to container's 5672 port by invoking Johann's `port` method:
 
 ```java
-ContainerPort containerPort = compose.port("rabbitmq", 5672);
-int port = containerPort.getPort();
+ContainerPort containerPort=compose.port("rabbitmq",5672);
+        int port=containerPort.getPort();
 ```
 
 You can even use `ContainerPort::format` method to create proper URL address with one-liner:
 
 ```java
-String url = compose.port("rabbitmq", 5672).format("tcp://$HOST:$PORT");
+String url=compose.port("rabbitmq",5672).format("tcp://$HOST:$PORT");
 ```
 
 #### Redirecting logs from containers to standard output and standard error
 
 ```java
 compose.up();
-compose.followLogs();
+        compose.followLogs();
 ```
 
 Logs from containers will be passed to `System.out` and `System.err` of currently running JVM until cluster is shut down or currently running JVM
