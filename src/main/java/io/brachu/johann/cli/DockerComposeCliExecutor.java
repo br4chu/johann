@@ -33,7 +33,7 @@ final class DockerComposeCliExecutor {
     private static final String[] DOWN_COMMAND = { "down" };
     private static final String[] KILL_COMMAND = { "kill" };
     private static final String[] PORT_COMMAND = { "port" };
-    private static final String[] PS_COMMAND = { "ps", "-q" };
+    private static final String[] PS_COMMAND = { "ps", "-q", "-a" };
     private static final String[] START_COMMAND = { "start" };
     private static final String[] STOP_COMMAND = { "stop" };
     private static final String[] FOLLOW_LOGS_COMMAND = { "logs", "-f" };
@@ -106,14 +106,20 @@ final class DockerComposeCliExecutor {
     }
 
     List<ContainerId> ps() {
-        String[] ids = exec(psCmd, resultSink()).split(System.lineSeparator());
-        return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
+        List<String> idList = split(exec(psCmd, resultSink()));
+        return idList.stream().map(ContainerId::new).collect(Collectors.toList());
     }
 
     List<ContainerId> ps(String serviceName) {
         String[] params = { serviceName };
-        String[] ids = exec(concat(psCmd, params), resultSink()).split(System.lineSeparator());
-        return Arrays.stream(ids).filter(StringUtils::isNotBlank).map(ContainerId::new).collect(Collectors.toList());
+        List<String> idList = split(exec(concat(psCmd, params), resultSink()));
+        return idList.stream().map(ContainerId::new).collect(Collectors.toList());
+    }
+
+    List<String> split(String input) {
+        return Arrays.stream(input.split("\\r?\\n|\\r"))
+                 .filter(StringUtils::isNotBlank)
+                 .collect(Collectors.toList());
     }
 
     void startAll() {
